@@ -19,7 +19,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Locale;
 
 import static terminalH.utils.CrawlerUtils.*;
 
@@ -63,6 +67,9 @@ public class MegaSportCrawler implements Crawler<Shop> {
         } catch (Exception e) {
             throw new TerminalHCrawlerException("Could not crawl shop " + shop.getName(), e);
         }
+
+        shop.setLastScan(LocalDateTime.now());
+        repository.save(shop);
     }
 
     private void crawlCategory(Category category, Shop shop) throws TerminalHCrawlerException {
@@ -119,8 +126,15 @@ public class MegaSportCrawler implements Crawler<Shop> {
                         orElseGet(() -> brandRepository.save(new Brand(brandName)));
 
                 productRepository.save(
-                        new Product(shop, productUrl, picUrl, name, category, brand, description, Float.parseFloat(price)));
-            } catch (IOException e) {
+                        new Product(shop,
+                                productUrl,
+                                picUrl,
+                                name,
+                                category,
+                                brand,
+                                description,
+                                NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue()));
+            } catch (IOException | ParseException e) {
                 //TODO: log meeee
                 e.printStackTrace();
             }
