@@ -46,6 +46,8 @@ public class MegaSportCrawler implements Crawler<Shop> {
     private String megasportUrl;
     @Value("${MEGASPORT_NAME}")
     private String megasportName;
+    @Value("#{'${MEGASPORT_IGNORE_CATEGORIES}'.split(',')}")
+    private Collection<String> ignoreCategories;
 
     @Override
     public void crawl() throws TerminalHCrawlerException {
@@ -56,9 +58,12 @@ public class MegaSportCrawler implements Crawler<Shop> {
             Collection<Element> categories = getFirstElementByClass(landPage, "navigation igormenu").
                     select("li.level0");
             categories.stream().
-                    forEach(category -> {
+                    forEach(rawCategory -> {
                         try {
-                            crawlCategory(extractCategory(category), shop);
+                            Category category = extractCategory(rawCategory);
+                            if (category != null) {
+                                crawlCategory(category, shop);
+                            }
                         } catch (TerminalHCrawlerException e) {
                             //TODO: log meeee
                             e.printStackTrace();
@@ -148,8 +153,14 @@ public class MegaSportCrawler implements Crawler<Shop> {
 
     private Category extractCategory(Element rawCategory) {
         String categoryUrl = extractUrl(rawCategory);
+        String name = rawCategory.select("a").first().text();
+
+        if (ignoreCategories.contains(name)) {
+            return null;
+        }
+
         return categoryRepository.findByUrl(categoryUrl).
-                orElseGet(() -> categoryRepository.save(new Category(rawCategory.select("a").first().text(), categoryUrl)));
+                orElseGet(() -> categoryRepository.save(new Category(name, categoryUrl)));
     }
 
     private Shop getShopToCrawl() {
