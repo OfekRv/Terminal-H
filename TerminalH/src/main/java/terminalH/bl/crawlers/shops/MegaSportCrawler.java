@@ -98,13 +98,15 @@ public class MegaSportCrawler implements Crawler<Shop> {
     private String getNextPageUrl(Document categoryPage) {
         String url = null;
         Element pages = getFirstElementByClass(categoryPage, "items pages-items");
-        int currentPage = Integer.parseInt(
-                getFirstElementByClass(pages, "item current").
-                        select("span").get(PAGE_IDX).text());
-        Elements nextPageElement = pages.select("li:contains(" + (currentPage + 1) + ")");
-        String nextPageUrl = null;
-        if (!nextPageElement.isEmpty()) {
-            url = extractUrl(nextPageElement.first());
+        if (pages != null) {
+            int currentPage = Integer.parseInt(
+                    getFirstElementByClass(pages, "item current").
+                            select("span").get(PAGE_IDX).text());
+            Elements nextPageElement = pages.select("li:contains(" + (currentPage + 1) + ")");
+            String nextPageUrl = null;
+            if (!nextPageElement.isEmpty()) {
+                url = extractUrl(nextPageElement.first());
+            }
         }
         return url;
     }
