@@ -50,7 +50,7 @@ public class MegaSportCrawler implements Crawler<Shop> {
         try {
             Document landPage = getRequest(shop.getUrl());
             Collection<Element> categories = getFirstElementByClass(landPage, "navigation igormenu").
-                    select("li");
+                    select("li.level0");
             categories.stream().
                     forEach(category -> {
                         try {
