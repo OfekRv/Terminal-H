@@ -82,15 +82,16 @@ public class MegaSportCrawler implements Crawler<Shop> {
                 throw new TerminalHCrawlerException("Could not get category or page html", e);
             }
 
-            Collection<Element> products = getFirstElementByClass(pageOfCategory, "products list items product-items").
-                    select("li");
-            products.stream().
-                    forEach(product ->
-                            crawlProduct(
-                                    product,
-                                    category,
-                                    shop));
-
+            Element productsContainer = getFirstElementByClass(pageOfCategory, "products list items product-items");
+            if (productsContainer != null) {
+                Collection<Element> products = productsContainer.select("li");
+                products.stream().
+                        forEach(product ->
+                                crawlProduct(
+                                        product,
+                                        category,
+                                        shop));
+            }
             url = getNextPageUrl(pageOfCategory);
         } while (url != null);
     }

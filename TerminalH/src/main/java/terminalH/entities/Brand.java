@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "trh_brands")
@@ -21,6 +22,9 @@ public class Brand {
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @JoinColumn(name = "brandId")
+    private Set<Product> products;
 
     public Brand(String name) {
         this.name = name;
