@@ -119,23 +119,25 @@ public class MegaSportCrawler implements Crawler<Shop> {
         if (!productRepository.existsByUrl(productUrl)) {
             try {
                 Document productPage = getRequest(productUrl);
-                String name = getFirstElementByClass(productPage, "page-title").text();
-                String price = getFirstElementByClass(productPage, "price ar_finalPrice").text().
-                        split(CURRENCY_SEPARATOR)[PRICE];
-                String description = getFirstElementByClass(productPage, "additional-attributes-wrapper_1  aaw_1").text();
-                String brandName = productPage.select("div[data-th=מותג]").text();
-                Brand brand = brandRepository.findByName(brandName).
-                        orElseGet(() -> brandRepository.save(new Brand(brandName)));
+                Element rawPrice = getFirstElementByClass(productPage, "price ar_finalPrice");
+                if (rawPrice != null) {
+                    String name = getFirstElementByClass(productPage, "page-title").text();
+                    String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE];
+                    String description = getFirstElementByClass(productPage, "additional-attributes-wrapper_1  aaw_1").text();
+                    String brandName = productPage.select("div[data-th=מותג]").text();
+                    Brand brand = brandRepository.findByName(brandName).
+                            orElseGet(() -> brandRepository.save(new Brand(brandName)));
 
-                productRepository.save(
-                        new Product(shop,
-                                productUrl,
-                                picUrl,
-                                name,
-                                category,
-                                brand,
-                                description,
-                                NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue()));
+                    productRepository.save(
+                            new Product(shop,
+                                    productUrl,
+                                    picUrl,
+                                    name,
+                                    category,
+                                    brand,
+                                    description,
+                                    NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue()));
+                }
             } catch (IOException | ParseException e) {
                 //TODO: log meeee
                 e.printStackTrace();
