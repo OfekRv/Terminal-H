@@ -1,12 +1,13 @@
 package terminalH.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import terminalH.entities.Product;
+import terminalH.entities.projections.ProductProjection;
 
 import java.util.Optional;
 
-@Repository
+@RepositoryRestResource(excerptProjection = ProductProjection.class)
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByUrl(String url);
 
