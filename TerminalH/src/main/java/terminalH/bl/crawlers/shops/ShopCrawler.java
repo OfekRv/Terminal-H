@@ -108,6 +108,11 @@ public interface ShopCrawler extends Crawler<Shop> {
                 orElseGet(() -> getCategoryRepository().save(new Category(name, categoryUrl)));
     }
 
+    default Shop getShopToCrawl() {
+        return getShopRepository().findByUrl(getShopUrl()).
+                orElseGet(() -> getShopRepository().save(new Shop(getShopUrl(), getShopName())));
+    }
+
     default void updateLastScan(Shop shop) {
         shop.setLastScan(LocalDateTime.now());
         getShopRepository().save(shop);
@@ -137,7 +142,9 @@ public interface ShopCrawler extends Crawler<Shop> {
 
     String getNextPageUrl(Document categoryPage);
 
-    Shop getShopToCrawl();
+    String getShopUrl();
+
+    String getShopName();
 
     ShopRepository getShopRepository();
 

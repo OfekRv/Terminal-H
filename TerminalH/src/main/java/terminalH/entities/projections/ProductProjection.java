@@ -6,17 +6,23 @@ import terminalH.entities.Category;
 import terminalH.entities.Product;
 import terminalH.entities.Shop;
 
-import javax.persistence.*;
-
-@Projection(name = "Product", types = { Product.class })
+@Projection(name = "Product", types = {Product.class})
 public interface ProductProjection {
-     Long getId();
-     Shop getShop();
-     String getUrl();
-     String getPictureUrl();
-     String getName();
-     Category getCategory();
-     Brand getBrand();
-     String getDescription();
-     float getPrice();
+    Long getId();
+
+    Shop getShop();
+
+    String getUrl();
+
+    String getPictureUrl();
+
+    String getName();
+
+    Category getCategory();
+
+    Brand getBrand();
+
+    String getDescription();
+
+    float getPrice();
 }
