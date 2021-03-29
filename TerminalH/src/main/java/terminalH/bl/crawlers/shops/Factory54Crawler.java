@@ -130,7 +130,7 @@ public class Factory54Crawler implements Crawler<Shop> {
                     Collection<Element> descriptions = getElementsByClass(productPage, "acc_container");
 
                     StringBuilder description = new StringBuilder();
-                    descriptions.stream().forEach(desc -> description.append(NEW_LINE + desc));
+                    descriptions.stream().forEach(desc -> description.append(NEW_LINE + desc.text()));
 
                     String brandName = details.select("a").text();
                     Brand brand = brandRepository.findByName(brandName).

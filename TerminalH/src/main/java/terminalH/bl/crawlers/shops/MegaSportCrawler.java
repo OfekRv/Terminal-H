@@ -30,7 +30,7 @@ import static terminalH.utils.CrawlerUtils.*;
 @Named
 public class MegaSportCrawler implements Crawler<Shop> {
     private static final String CURRENCY_SEPARATOR = " ";
-    private static final int PRICE = 0;
+    private static final int PRICE_IDX = 0;
     private static final int PAGE_IDX = 1;
 
     @Inject
@@ -128,7 +128,7 @@ public class MegaSportCrawler implements Crawler<Shop> {
                 Element rawPrice = getFirstElementByClass(productPage, "price ar_finalPrice");
                 if (rawPrice != null) {
                     String name = getFirstElementByClass(productPage, "page-title").text();
-                    String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE];
+                    String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
                     String description = getFirstElementByClass(productPage, "additional-attributes-wrapper_1  aaw_1").text();
                     String brandName = productPage.select("div[data-th=מותג]").text();
                     Brand brand = brandRepository.findByName(brandName).
