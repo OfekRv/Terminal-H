@@ -1,12 +1,13 @@
 package terminalH.entities.projections;
 
 import org.springframework.data.rest.core.config.Projection;
+import org.springframework.hateoas.server.core.Relation;
 import terminalH.entities.Brand;
 import terminalH.entities.Category;
 import terminalH.entities.Product;
 import terminalH.entities.Shop;
 
-@Projection(name = "Product", types = {Product.class})
+@Projection(name = "detailedProduct", types = {Product.class})
 public interface ProductProjection {
     Long getId();
 
