@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,7 +25,7 @@ public class Shop {
     @Column(nullable = false, unique = true)
     private String name;
     @Column(nullable = true, unique = false)
-    private LocalDateTime lastScan = LocalDateTime.now();
+    private LocalDateTime lastScan;
 
     public Shop(String url, String name) {
         this.url = url;
