@@ -102,7 +102,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     public String getNextPageUrl(Document categoryPage) {
         Elements nextPage = categoryPage.select("a.next-page-link");
 
-        if (nextPage.isEmpty()) {
+        if (nextPage.isEmpty() || Boolean.getBoolean(nextPage.first().attr("data-is-last"))) {
             return null;
         }
 
