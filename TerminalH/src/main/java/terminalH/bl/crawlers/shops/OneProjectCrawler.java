@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 
+import static java.lang.Boolean.parseBoolean;
 import static terminalH.utils.CrawlerUtils.*;
 
 @Named
@@ -102,7 +103,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     public String getNextPageUrl(Document categoryPage) {
         Elements nextPage = categoryPage.select("a.next-page-link");
 
-        if (nextPage.isEmpty() || Boolean.getBoolean(nextPage.first().attr("data-is-last"))) {
+        if (nextPage.isEmpty() || parseBoolean(nextPage.first().attr("data-is-last"))) {
             return null;
         }
 
