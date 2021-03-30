@@ -13,7 +13,7 @@ import java.util.Collection;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByUrl(String url);
 
-    Collection<Product> findByNameContaining(@Param("name") String name);
+    Collection<Product> findByNameContainingIgnoreCase(@Param("name") String name);
 
-    Collection<Product> findByDescriptionContaining(@Param("desc") String desc);
+    Collection<Product> findByDescriptionContainingIgnoreCase(@Param("desc") String desc);
 }
