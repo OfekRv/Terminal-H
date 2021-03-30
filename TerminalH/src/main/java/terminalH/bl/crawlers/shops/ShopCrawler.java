@@ -78,11 +78,11 @@ public interface ShopCrawler extends Crawler<Shop> {
         if (!getProductRepository().existsByUrl(productUrl)) {
             try {
                 Document productPage = getRequest(productUrl);
-                Optional<Float> price = extractProductPrice(rawProduct);
+                Optional<Float> price = extractProductPrice(productPage);
                 if (price.isPresent()) {
-                    String name = extractProductName(rawProduct);
-                    String description = extractDescription(rawProduct);
-                    String brandName = extractBrand(rawProduct);
+                    String name = extractProductName(productPage);
+                    String description = extractDescription(productPage);
+                    String brandName = extractBrand(productPage);
                     Brand brand = getBrandRepository().findByName(brandName).
                             orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
 

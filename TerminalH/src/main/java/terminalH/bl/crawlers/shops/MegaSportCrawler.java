@@ -4,43 +4,23 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
-import terminalH.bl.crawlers.Crawler;
-import terminalH.entities.Brand;
-import terminalH.entities.Category;
-import terminalH.entities.Product;
-import terminalH.entities.Shop;
-import terminalH.exceptions.TerminalHCrawlerException;
-import terminalH.repositories.BrandRepository;
-import terminalH.repositories.CategoryRepository;
-import terminalH.repositories.ProductRepository;
-import terminalH.repositories.ShopRepository;
 
-import javax.inject.Inject;
 import javax.inject.Named;
-import javax.transaction.Transactional;
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Optional;
 
-import static terminalH.utils.CrawlerUtils.*;
+import static terminalH.utils.CrawlerUtils.extractUrl;
+import static terminalH.utils.CrawlerUtils.getFirstElementByClass;
 
 @Named
-public class MegaSportCrawler implements Crawler<Shop> {
+public class MegaSportCrawler extends AbstractShopCrawler {
     private static final String CURRENCY_SEPARATOR = " ";
+    private static final String EMPTY = "";
     private static final int PRICE_IDX = 0;
     private static final int PAGE_IDX = 1;
-
-    @Inject
-    private ShopRepository repository;
-    @Inject
-    private BrandRepository brandRepository;
-    @Inject
-    private CategoryRepository categoryRepository;
-    @Inject
-    private ProductRepository productRepository;
 
     @Value("${MEGASPORT_URL}")
     private String megasportUrl;
@@ -50,58 +30,76 @@ public class MegaSportCrawler implements Crawler<Shop> {
     private Collection<String> ignoreCategories;
 
     @Override
-    public void crawl() throws TerminalHCrawlerException {
-        Shop shop = getShopToCrawl();
+    public Collection<Element> extractRawCategories(Element landPage) {
+        return getFirstElementByClass(landPage, "navigation igormenu").select("li.level0");
+    }
 
-        try {
-            Document landPage = getRequest(shop.getUrl());
-            Collection<Element> categories = getFirstElementByClass(landPage, "navigation igormenu").
-                    select("li.level0");
-            categories.stream().
-                    forEach(rawCategory -> {
-                        try {
-                            Category category = extractCategory(rawCategory);
-                            if (category != null) {
-                                crawlCategory(category, shop);
-                            }
-                        } catch (TerminalHCrawlerException e) {
-                            //TODO: log meeee
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (Exception e) {
-            throw new TerminalHCrawlerException("Could not crawl shop " + shop.getName(), e);
+    @Override
+    public Element extractProductsContainer(Element categoryPage) {
+        return getFirstElementByClass(categoryPage, "products list items product-items");
+    }
+
+    @Override
+    public Collection<Element> extractRawProducts(Element productContainer) {
+        return productContainer.select("li");
+    }
+
+    @Override
+    public String extractProductUrl(Element product) {
+        return extractUrl(getFirstElementByClass(product, "product details product-item-details wct3"));
+    }
+
+    @Override
+    public String extractProductImageUrl(Element product) {
+        return getFirstElementByClass(product, "product-image-photo")
+                .select("img").first()
+                .absUrl("src");
+    }
+
+    @Override
+    public Optional<Float> extractProductPrice(Element product) {
+        Element rawPrice = getFirstElementByClass(product, "price ar_finalPrice");
+        if (rawPrice == null) {
+            return null;
         }
 
-        shop.setLastScan(LocalDateTime.now());
-        repository.save(shop);
+        String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
+        try {
+            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
+        } catch (ParseException e) {
+            getLogger().warn("Could not extract price");
+        }
+
+        return null;
     }
 
-    private void crawlCategory(Category category, Shop shop) throws TerminalHCrawlerException {
-        String url = category.getUrl();
-        Document pageOfCategory;
-        do {
-            try {
-                pageOfCategory = getRequest(url);
-            } catch (IOException e) {
-                throw new TerminalHCrawlerException("Could not get category or page html", e);
-            }
-
-            Element productsContainer = getFirstElementByClass(pageOfCategory, "products list items product-items");
-            if (productsContainer != null) {
-                Collection<Element> products = productsContainer.select("li");
-                products.stream().
-                        forEach(product ->
-                                crawlProduct(
-                                        product,
-                                        category,
-                                        shop));
-            }
-            url = getNextPageUrl(pageOfCategory);
-        } while (url != null);
+    @Override
+    public String extractProductName(Element product) {
+        return getFirstElementByClass(product, "page-title").text();
     }
 
-    private String getNextPageUrl(Document categoryPage) {
+    @Override
+    public String extractDescription(Element product) {
+        return getFirstElementByClass(product, "additional-attributes-wrapper_1  aaw_1").text();
+    }
+
+    @Override
+    public String extractCategoryName(Element rawCategory) {
+        return rawCategory.select("a").first().text();
+    }
+
+    @Override
+    public String extractCategoryUrl(Element rawCategory) {
+        return extractUrl(rawCategory);
+    }
+
+    @Override
+    public String extractBrand(Element product) {
+        return product.select("div[data-th=מותג]").text();
+    }
+
+    @Override
+    public String getNextPageUrl(Document categoryPage) {
         String url = null;
         Element pages = getFirstElementByClass(categoryPage, "items pages-items");
         if (pages != null) {
@@ -114,56 +112,21 @@ public class MegaSportCrawler implements Crawler<Shop> {
             }
         }
         return url;
+
     }
 
-    @Transactional
-    private void crawlProduct(Element rawProduct, Category category, Shop shop) {
-        String productUrl = extractUrl(getFirstElementByClass(rawProduct, "product details product-item-details wct3"));
-        String picUrl = getFirstElementByClass(rawProduct, "product-image-photo").
-                select("img").first().absUrl("src");
-        if (!productRepository.existsByUrl(productUrl)) {
-            try {
-                Document productPage = getRequest(productUrl);
-                Element rawPrice = getFirstElementByClass(productPage, "price ar_finalPrice");
-                if (rawPrice != null) {
-                    String name = getFirstElementByClass(productPage, "page-title").text();
-                    String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
-                    String description = getFirstElementByClass(productPage, "additional-attributes-wrapper_1  aaw_1").text();
-                    String brandName = productPage.select("div[data-th=מותג]").text();
-                    Brand brand = brandRepository.findByName(brandName).
-                            orElseGet(() -> brandRepository.save(new Brand(brandName)));
-
-                    productRepository.save(
-                            new Product(shop,
-                                    productUrl,
-                                    picUrl,
-                                    name,
-                                    category,
-                                    brand,
-                                    description,
-                                    NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue()));
-                }
-            } catch (IOException | ParseException e) {
-                //TODO: log meeee
-                e.printStackTrace();
-            }
-        }
+    @Override
+    public String getShopUrl() {
+        return megasportUrl;
     }
 
-    private Category extractCategory(Element rawCategory) {
-        String categoryUrl = extractUrl(rawCategory);
-        String name = rawCategory.select("a").first().text();
-
-        if (ignoreCategories.contains(name)) {
-            return null;
-        }
-
-        return categoryRepository.findByUrl(categoryUrl).
-                orElseGet(() -> categoryRepository.save(new Category(name, categoryUrl)));
+    @Override
+    public String getShopName() {
+        return megasportName;
     }
 
-    private Shop getShopToCrawl() {
-        return repository.findByUrl(megasportUrl).
-                orElseGet(() -> repository.save(new Shop(megasportUrl, megasportName)));
+    @Override
+    public Collection<String> getIgnoredCategories() {
+        return ignoreCategories;
     }
 }

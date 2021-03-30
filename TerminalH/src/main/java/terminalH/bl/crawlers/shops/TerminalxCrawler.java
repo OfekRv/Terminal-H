@@ -90,8 +90,7 @@ public class TerminalxCrawler extends AbstractShopCrawler {
 
     @Override
     public String extractDescription(Element product) {
-        // Not supported yet
-        return EMPTY;
+        return getFirstElementByClass(product,"product info detailed").text();
     }
 
     @Override
