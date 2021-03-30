@@ -38,7 +38,7 @@ public interface ShopCrawler extends Crawler<Shop> {
                                 crawlCategory(category, shop);
                             }
                         } catch (TerminalHCrawlerException e) {
-                            getLogger().error("Error while trying to crawl category in shop - " + shop, e);
+                            getLogger().error("Error while trying to crawl category in shop: " + shop, e);
                         }
                     });
         } catch (Exception e) {

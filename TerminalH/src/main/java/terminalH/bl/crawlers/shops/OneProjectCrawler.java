@@ -2,6 +2,7 @@ package terminalH.bl.crawlers.shops;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.inject.Named;
@@ -14,54 +15,55 @@ import java.util.Optional;
 import static terminalH.utils.CrawlerUtils.*;
 
 @Named
-public class FactoryCrawler extends AbstractShopCrawler {
+public class OneProjectCrawler extends AbstractShopCrawler {
     private static final String CURRENCY_SEPARATOR = " ";
-    private static final String NEW_LINE = "\n";
     private static final int PRICE_IDX = 0;
     private static final int PAGE_IDX = 1;
 
-    @Value("${FACTORY54_URL}")
-    private String factory54Url;
-    @Value("${FACTORY54_NAME}")
-    private String factory54Name;
-    @Value("#{'${FACTORY54_IGNORE_CATEGORIES}'.split(',')}")
+    @Value("${ONEPROJECT_URL}")
+    private String oneProjectUrl;
+    @Value("${ONEPROJECT_NAME}")
+    private String oneProjectName;
+    @Value("#{'${ONEPROJECT_IGNORE_CATEGORIES}'.split(',')}")
     private Collection<String> ignoreCategories;
 
     @Override
     public Collection<Element> extractRawCategories(Element landPage) {
-        return getFirstElementByClass(landPage, "nav_container").select("li.level0");
+        return getElementsByClass(
+                getFirstElementByClass(landPage, "header_desktop_wrapper"),
+                "menu-link");
     }
 
     @Override
     public Element extractProductsContainer(Element categoryPage) {
-        return getFirstElementByClass(categoryPage, "group-product-item");
+        return getFirstElementByClass(categoryPage, "gallery-content-results twoColumns");
     }
 
     @Override
     public Collection<Element> extractRawProducts(Element productContainer) {
-        return getElementsByClass(productContainer, "col3");
+        return productContainer.select("div[data-item=product]");
     }
 
     @Override
     public String extractProductUrl(Element product) {
-        return extractUrl(product.select("h2").first());
+        return extractUrl(getFirstElementByClass(product, "gallery-content-results-item-imagebox"));
     }
 
     @Override
     public String extractProductImageUrl(Element product) {
-        return getFirstElementByClass(product, "lazy-img default")
+        return getFirstElementByClass(product, "gallery-content-results-item-imagebox")
                 .select("img").first()
-                .absUrl("data-src");
+                .absUrl("src");
     }
 
     @Override
     public Optional<Float> extractProductPrice(Element product) {
-        Element rawPrice = getFirstElementByClass(product, "price-box");
+        Element rawPrice = getFirstElementByClass(product, "product_price_real");
         if (rawPrice == null) {
             return null;
         }
 
-        String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
+        String price = rawPrice.attr("data-price");
         try {
             return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
         } catch (ParseException e) {
@@ -73,22 +75,17 @@ public class FactoryCrawler extends AbstractShopCrawler {
 
     @Override
     public String extractProductName(Element product) {
-        return getFirstElementByClass(product, "showavimobile productHeader")
-                .select("p").text();
+        return product.select("h1.product_title").text();
     }
 
     @Override
     public String extractDescription(Element product) {
-        StringBuilder description = new StringBuilder();
-        getElementsByClass(product, "acc_container").stream()
-                .forEach(desc -> description.append(NEW_LINE + desc.text()));
-
-        return description.toString();
+        return getFirstElementByClass(product, "product_info_details_row_text description active").text();
     }
 
     @Override
     public String extractCategoryName(Element rawCategory) {
-        return rawCategory.select("a.level0").first().text();
+        return rawCategory.text();
     }
 
     @Override
@@ -98,31 +95,30 @@ public class FactoryCrawler extends AbstractShopCrawler {
 
     @Override
     public String extractBrand(Element product) {
-        return getFirstElementByClass(product, "showavimobile productHeader").select("a").text();
+        return getFirstElementByClass(product, "product-row").text();
     }
 
     @Override
     public String getNextPageUrl(Document categoryPage) {
-        String url = null;
-        Element pages = getFirstElementByClass(categoryPage, "pages clearfix");
-        if (pages != null) {
-            Element rawNextPageLink = getFirstElementByClass(pages, "next");
-            String nextPageUrl = null;
-            if (rawNextPageLink != null) {
-                url = extractUrl(rawNextPageLink);
-            }
+        Elements nextPage = categoryPage.select("a.next-page-link");
+
+        if (nextPage.isEmpty()) {
+            return null;
         }
-        return url;
+
+        String nextPageUrl = extractUrl(nextPage.first());
+
+        return nextPageUrl.equals(EMPTY) ? null : nextPageUrl;
     }
 
     @Override
     public String getShopUrl() {
-        return factory54Url;
+        return oneProjectUrl;
     }
 
     @Override
     public String getShopName() {
-        return factory54Name;
+        return oneProjectName;
     }
 
     @Override
