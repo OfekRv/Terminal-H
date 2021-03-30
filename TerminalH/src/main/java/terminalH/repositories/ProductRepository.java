@@ -1,14 +1,19 @@
 package terminalH.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 import terminalH.entities.Product;
 
-import java.util.Optional;
+import java.util.Collection;
 
 @Repository
+@RepositoryRestResource(collectionResourceRel = "products", path = "products")
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<Product> findByUrl(String url);
-
     boolean existsByUrl(String url);
+
+    Collection<Product> findByNameContaining(@Param("name") String name);
+
+    Collection<Product> findByDescriptionContaining(@Param("desc") String desc);
 }
