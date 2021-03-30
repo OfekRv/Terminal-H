@@ -109,7 +109,6 @@ public class MegaSportCrawler implements Crawler<Shop> {
                     getFirstElementByClass(pages, "item current").
                             select("span").get(PAGE_IDX).text());
             Elements nextPageElement = pages.select("li:contains(" + (currentPage + 1) + ")");
-            String nextPageUrl = null;
             if (!nextPageElement.isEmpty()) {
                 url = extractUrl(nextPageElement.first());
             }

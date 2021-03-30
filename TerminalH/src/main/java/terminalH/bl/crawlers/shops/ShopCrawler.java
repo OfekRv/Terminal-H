@@ -61,7 +61,7 @@ public interface ShopCrawler extends Crawler<Shop> {
                 throw new TerminalHCrawlerException("Could not get category or page html", e);
             }
 
-            Element productsContainer = extractProductContainer(pageOfCategory);
+            Element productsContainer = extractProductsContainer(pageOfCategory);
             if (productsContainer != null) {
                 Collection<Element> products = extractRawProducts(productsContainer);
                 products.stream().forEach(product -> crawlProduct(product, category, shop));
@@ -72,16 +72,16 @@ public interface ShopCrawler extends Crawler<Shop> {
 
     @Transactional
     default void crawlProduct(Element rawProduct, Category category, Shop shop) {
-        String productUrl = extractProductUrl();
+        String productUrl = extractProductUrl(rawProduct);
         getLogger().info("Crawling product: " + productUrl);
-        String picUrl = extractProductImageUrl();
+        String picUrl = extractProductImageUrl(rawProduct);
         if (!getProductRepository().existsByUrl(productUrl)) {
             try {
                 Document productPage = getRequest(productUrl);
-                Optional<Float> price = extractProductPrice();
+                Optional<Float> price = extractProductPrice(rawProduct);
                 if (price.isPresent()) {
-                    String name = extractProductName();
-                    String description = extractDescription();
+                    String name = extractProductName(rawProduct);
+                    String description = extractDescription(rawProduct);
                     String brandName = extractBrand(rawProduct);
                     Brand brand = getBrandRepository().findByName(brandName).
                             orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
@@ -120,19 +120,19 @@ public interface ShopCrawler extends Crawler<Shop> {
 
     Collection<Element> extractRawCategories(Element landPage);
 
-    Element extractProductContainer(Element productContainer);
+    Element extractProductsContainer(Element categoryPage);
 
     Collection<Element> extractRawProducts(Element productContainer);
 
-    String extractProductUrl();
+    String extractProductUrl(Element product);
 
-    String extractProductImageUrl();
+    String extractProductImageUrl(Element product);
 
-    Optional<Float> extractProductPrice();
+    Optional<Float> extractProductPrice(Element product);
 
-    String extractProductName();
+    String extractProductName(Element product);
 
-    String extractDescription();
+    String extractDescription(Element product);
 
     String extractCategoryName(Element rawCategory);
 
