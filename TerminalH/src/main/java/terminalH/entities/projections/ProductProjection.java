@@ -1,7 +1,6 @@
 package terminalH.entities.projections;
 
 import org.springframework.data.rest.core.config.Projection;
-import org.springframework.hateoas.server.core.Relation;
 import terminalH.entities.Brand;
 import terminalH.entities.Category;
 import terminalH.entities.Product;

@@ -85,7 +85,7 @@ public class TerminalxCrawler extends AbstractShopCrawler {
 
     @Override
     public String extractProductName(Element product) {
-        return getFirstElementByClass(product, "product name product-item-name").text();
+        return getFirstElementByClass(product, "base attribute_name").text();
     }
 
     @Override
