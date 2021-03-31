@@ -15,6 +15,7 @@ import static terminalH.utils.CrawlerUtils.*;
 
 @Named
 public class Factory54Crawler extends AbstractShopCrawler {
+    private static final String NO_DESIGNER = "DESIGNER PARAMETER MISSING!!!";
     private static final String CURRENCY_SEPARATOR = " ";
     private static final String NEW_LINE = "\n";
     private static final int PRICE_IDX = 0;
@@ -44,7 +45,8 @@ public class Factory54Crawler extends AbstractShopCrawler {
 
     @Override
     public String extractProductUrl(Element product) {
-        return extractUrl(product.select("h2").first());
+        Element titleElement = product.select("h2").first();
+        return titleElement.text().equals(NO_DESIGNER) ? null : extractUrl(titleElement);
     }
 
     @Override
