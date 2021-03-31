@@ -73,25 +73,27 @@ public interface ShopCrawler extends Crawler<Shop> {
     @Transactional
     default void crawlProduct(Element rawProduct, Category category, Shop shop) {
         String productUrl = extractProductUrl(rawProduct);
-        getLogger().info("Crawling product: " + productUrl);
-        String picUrl = extractProductImageUrl(rawProduct);
-        if (!getProductRepository().existsByUrl(productUrl)) {
-            try {
-                Document productPage = getRequest(productUrl);
-                Optional<Float> price = extractProductPrice(productPage);
-                if (price.isPresent()) {
-                    String name = extractProductName(productPage);
-                    String description = extractDescription(productPage);
-                    String brandName = extractBrand(productPage);
-                    Brand brand = getBrandRepository().findByName(brandName).
-                            orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
+        if (productUrl != null) {
+            getLogger().info("Crawling product: " + productUrl);
+            String picUrl = extractProductImageUrl(rawProduct);
+            if (!getProductRepository().existsByUrl(productUrl)) {
+                try {
+                    Document productPage = getRequest(productUrl);
+                    Optional<Float> price = extractProductPrice(productPage);
+                    if (price.isPresent()) {
+                        String name = extractProductName(productPage);
+                        String description = extractDescription(productPage);
+                        String brandName = extractBrand(productPage);
+                        Brand brand = getBrandRepository().findByName(brandName).
+                                orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
 
-                    getLogger().info("Saving product (" + name + "): " + productUrl);
-                    getProductRepository().save(
-                            new Product(shop, productUrl, picUrl, name, category, brand, description, price.get()));
+                        getLogger().info("Saving product (" + name + "): " + productUrl);
+                        getProductRepository().save(
+                                new Product(shop, productUrl, picUrl, name, category, brand, description, price.get()));
+                    }
+                } catch (IOException e) {
+                    getLogger().error("Error while trying to crawl product: " + productUrl, e);
                 }
-            } catch (IOException e) {
-                getLogger().error("Error while trying to crawl product: " + productUrl, e);
             }
         }
     }
