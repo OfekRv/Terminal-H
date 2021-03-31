@@ -35,7 +35,7 @@ public interface ShopCrawler extends Crawler<Shop> {
                             Category category = extractCategory(rawCategory);
                             if (category != null) {
                                 getLogger().info("Crawling category: " + category.getName());
-                                crawlCategory(category, shop);
+                                crawlCategory(category, extractCategoryUrl(rawCategory), shop);
                             }
                         } catch (TerminalHCrawlerException e) {
                             getLogger().error("Error while trying to crawl category in shop: " + shop, e);
@@ -51,8 +51,8 @@ public interface ShopCrawler extends Crawler<Shop> {
     }
 
 
-    default void crawlCategory(Category category, Shop shop) throws TerminalHCrawlerException {
-        String url = category.getUrl();
+    default void crawlCategory(Category category, String categoryUrl, Shop shop) throws TerminalHCrawlerException {
+        String url = categoryUrl;
         Document pageOfCategory;
         do {
             try {
@@ -97,15 +97,14 @@ public interface ShopCrawler extends Crawler<Shop> {
     }
 
     default Category extractCategory(Element rawCategory) {
-        String categoryUrl = extractCategoryUrl(rawCategory);
         String name = extractCategoryName(rawCategory);
 
         if (getIgnoredCategories().contains(name)) {
             return null;
         }
 
-        return getCategoryRepository().findByUrl(categoryUrl).
-                orElseGet(() -> getCategoryRepository().save(new Category(name, categoryUrl)));
+        return getCategoryRepository().findByName(name).
+                orElseGet(() -> getCategoryRepository().save(new Category(name)));
     }
 
     default Shop getShopToCrawl() {

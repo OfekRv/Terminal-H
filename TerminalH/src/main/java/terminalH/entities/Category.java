@@ -22,14 +22,11 @@ public class Category {
     private Long id;
     @Column(nullable = false, unique = false)
     private String name;
-    @Column(nullable = false, unique = false)
-    private String url;
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "categoryId")
     private Set<Product> products;
 
-    public Category(String name, String url) {
+    public Category(String name) {
         this.name = name;
-        this.url = url;
     }
 }
