@@ -80,7 +80,7 @@ public class TerminalxCrawler extends AbstractShopCrawler {
         } catch (ParseException e) {
             getLogger().warn("Could not extract price");
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

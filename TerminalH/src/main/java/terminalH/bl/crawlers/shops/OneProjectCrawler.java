@@ -62,7 +62,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     public Optional<Float> extractProductPrice(Element product) {
         Element rawPrice = getFirstElementByClass(product, "product_price_real");
         if (rawPrice == null) {
-            return null;
+            return Optional.empty();
         }
 
         String price = rawPrice.attr("data-price");
@@ -72,7 +72,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
             getLogger().warn("Could not extract price");
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override
