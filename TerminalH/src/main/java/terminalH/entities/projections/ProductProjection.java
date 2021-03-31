@@ -1,10 +1,8 @@
 package terminalH.entities.projections;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
-import terminalH.entities.Brand;
-import terminalH.entities.Category;
-import terminalH.entities.Product;
-import terminalH.entities.Shop;
+import terminalH.entities.*;
 
 @Projection(name = "detailedProduct", types = {Product.class})
 public interface ProductProjection {
@@ -19,6 +17,9 @@ public interface ProductProjection {
     String getName();
 
     Category getCategory();
+
+    @Value("#{target.category.section}")
+    Section getCategorySection();
 
     Brand getBrand();
 
