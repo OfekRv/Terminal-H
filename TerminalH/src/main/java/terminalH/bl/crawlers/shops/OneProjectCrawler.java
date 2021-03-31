@@ -17,7 +17,8 @@ import static terminalH.utils.CrawlerUtils.*;
 
 @Named
 public class OneProjectCrawler extends AbstractShopCrawler {
-    private static final String CURRENCY_SEPARATOR = " ";
+    private static final String SEPARATOR = " ";
+    private static final int PRODUCT_COUNT_IDX = 0;
     private static final int PRICE_IDX = 0;
     private static final int PAGE_IDX = 1;
 
@@ -103,7 +104,9 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     public String getNextPageUrl(Document categoryPage) {
         Elements nextPage = categoryPage.select("a.next-page-link");
 
-        if (nextPage.isEmpty() || parseBoolean(nextPage.first().attr("data-is-last"))) {
+        if (nextPage.isEmpty()
+                || parseBoolean(nextPage.first().attr("data-is-last"))
+                || getCurrentProductsCount(categoryPage) == 0) {
             return null;
         }
 
@@ -125,5 +128,11 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     @Override
     public Collection<String> getIgnoredCategories() {
         return ignoreCategories;
+    }
+
+    private int getCurrentProductsCount(Document categoryPage) {
+        return Integer.parseInt(
+                getFirstElementByClass(categoryPage, "gallery-content-results-info-count")
+                        .text().split(SEPARATOR)[PRODUCT_COUNT_IDX]);
     }
 }
