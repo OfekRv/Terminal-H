@@ -51,7 +51,7 @@ public interface ShopCrawler extends Crawler<Shop> {
         updateLastScan(shop);
     }
 
-
+    @Async
     default void crawlCategory(Category category, String categoryUrl, Shop shop) throws TerminalHCrawlerException {
         String url = categoryUrl;
         Document pageOfCategory;
@@ -116,6 +116,7 @@ public interface ShopCrawler extends Crawler<Shop> {
                 orElseGet(() -> getShopRepository().save(new Shop(getShopUrl(), getShopName())));
     }
 
+    @Transactional
     default void updateLastScan(Shop shop) {
         shop.setLastScan(LocalDateTime.now());
         getShopRepository().save(shop);
