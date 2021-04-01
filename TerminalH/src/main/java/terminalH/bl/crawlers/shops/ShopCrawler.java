@@ -3,6 +3,7 @@ package terminalH.bl.crawlers.shops;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
+import org.springframework.scheduling.annotation.Async;
 import terminalH.bl.crawlers.Crawler;
 import terminalH.entities.Brand;
 import terminalH.entities.Category;
@@ -38,7 +39,7 @@ public interface ShopCrawler extends Crawler<Shop> {
                                 crawlCategory(category, extractCategoryUrl(rawCategory), shop);
                             }
                         } catch (TerminalHCrawlerException e) {
-                            getLogger().error("Error while trying to crawl category in shop: " + shop, e);
+                            getLogger().error("Error while trying to crawl category in shop: " + shop.getName(), e);
                         }
                     });
         } catch (Exception e) {
@@ -70,6 +71,7 @@ public interface ShopCrawler extends Crawler<Shop> {
         } while (url != null);
     }
 
+    @Async
     @Transactional
     default void crawlProduct(Element rawProduct, Category category, Shop shop) {
         String productUrl = extractProductUrl(rawProduct);

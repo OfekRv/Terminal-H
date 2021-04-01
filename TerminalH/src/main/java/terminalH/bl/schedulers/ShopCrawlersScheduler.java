@@ -1,7 +1,6 @@
 package terminalH.bl.schedulers;
 
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Repository;
 import terminalH.bl.crawlers.Crawler;
 import terminalH.entities.Shop;
 import terminalH.exceptions.TerminalHCrawlerException;
@@ -21,7 +20,6 @@ public class ShopCrawlersScheduler {
             try {
                 crawler.crawl();
             } catch (TerminalHCrawlerException e) {
-                // TODO: log meee
                 e.printStackTrace();
             }
         });
