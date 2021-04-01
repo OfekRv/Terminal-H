@@ -34,4 +34,9 @@ public class Category {
     public Category(String name) {
         this.name = name;
     }
+
+    public Category(String name, Section section) {
+        this.name = name;
+        this.section = section;
+    }
 }

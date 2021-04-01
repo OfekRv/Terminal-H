@@ -19,31 +19,35 @@ public class DBSeedInitializer {
     public ApplicationRunner initializer(SectionRepository sectionRepository, CategoryRepository categoryRepository) {
         return args ->
         {
-            createOrUpdateSection("בגדים",
-                    Arrays.asList("סוודרים וסווטשירטים", "ג'קטים ומעילים", "מכנסיים", "חולצות", "שמלות וחצאיות", "חליפות ואוברולים", "בגדים"),
-                    sectionRepository, categoryRepository);
-            createOrUpdateSection("אקססוריז", Arrays.asList("אקססוריז", "תיקים"), sectionRepository, categoryRepository);
-            createOrUpdateSection("הלבשה תחתונה", Arrays.asList("הלבשה תחתונה"), sectionRepository, categoryRepository);
-            createOrUpdateSection("בגדי ים", Arrays.asList("בגדי ים"), sectionRepository, categoryRepository);
-            createOrUpdateSection("אביזרי ספורט", Arrays.asList(), sectionRepository, categoryRepository);
+            createOrUpdateSection("בגדים", Arrays.asList("סוודרים וסווטשירטים", "ג'קטים ומעילים", "מכנסיים", "חולצות", "שמלות וחצאיות", "חליפות ואוברולים", "בגדים", "גוזיות ספורט", "טייצים ארוכים", "טייצים קצרים", "חולצות ספורט", "מכנסי ספורט קצרים", "ג'קטים ועליוניות", "גופיות ספורט", "חליפות", "מכנסי ספורט ארוכים", "ביגוד", "סריגים וסוודרים", "סוויטשרטים וקפוצונים", "שמלות", "חצאיות", "DENIM"), sectionRepository, categoryRepository);
+            createOrUpdateSection("אקססוריז", Arrays.asList("אקססוריז", "תיקים", "חגורות", "תכשיטים", "שעונים", "משקפי שמש", "צעיפים", "כובעים", "אביזרי שיער"), sectionRepository, categoryRepository);
+            createOrUpdateSection("הלבשה תחתונה", Arrays.asList("הלבשה תחתונה", "פיג'מות והלבשה תחתונה"), sectionRepository, categoryRepository);
+            createOrUpdateSection("בגדי ים", Arrays.asList("בגדי ים", "בגדי ים וחוף", "בגדי ים ובריכה", "ים ובריכה"), sectionRepository, categoryRepository);
+            createOrUpdateSection("אביזרי ספורט", Arrays.asList("מכשירי כושר וציוד", "משחקים ופנאי", "ענפי ספורט", "אביזרי ספורט"), sectionRepository, categoryRepository);
             createOrUpdateSection("ביוטי", Arrays.asList("ביוטי ולייף סטייל"), sectionRepository, categoryRepository);
-            createOrUpdateSection("נעליים", Arrays.asList("נעליים"), sectionRepository, categoryRepository);
+            createOrUpdateSection("נעליים", Arrays.asList("נעליים", "סניקרס", "מגפיים ומגפונים", "סנדלים", "נעליים שטוחות", "נעלי עקב", "נעלי ספורט", "נעלי נוחות", "נעלי פלטפורמה", "נעלי בית", "כפכפים", "מגפיים", "נעלי עבודה", "נעליים קלאסיות", "נעלי עור", "נעלי בד", "נעלי הרים"), sectionRepository, categoryRepository);
         };
     }
 
+    @Transactional
     private void createOrUpdateSection(String name, Collection<String> categoryNames, SectionRepository sectionRepository, CategoryRepository categoryRepository) {
-        Section section = sectionRepository.findByName(name).orElseGet(() -> sectionRepository.save(new Section(name)));
+        Section section = getOrSaveSection(name, sectionRepository);
         for (String categoryName : categoryNames) {
-            Category category = categoryRepository.findByName(categoryName)
-                    .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
-            if (!isCategoryInSection(section, category)) {
-                section.getCategories().add(category);
-            }
+            Category category = getOrSaveCategory(categoryName, categoryRepository);
+            section.getCategories().add(category);
         }
         sectionRepository.save(section);
     }
 
-    private boolean isCategoryInSection(Section section, Category category) {
-        return section.getCategories().stream().filter(c -> c.getName().equals(category.getName())).findAny().isPresent();
+    @Transactional
+    private Section getOrSaveSection(String name, SectionRepository repository) {
+        return repository.findByName(name)
+                .orElseGet(() -> repository.save(new Section(name)));
+    }
+
+    @Transactional
+    private Category getOrSaveCategory(String name, CategoryRepository repository) {
+        return repository.findByName(name)
+                .orElseGet(() -> repository.save(new Category(name)));
     }
 }
