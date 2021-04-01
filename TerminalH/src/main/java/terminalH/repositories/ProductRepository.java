@@ -13,6 +13,8 @@ import terminalH.entities.Product;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByUrl(String url);
 
+    Product findByUrl(String url);
+
     Page<Product> findByCategorySectionId(@Param("sectionId") long sectionId, Pageable page);
 
     Page<Product> findByNameContainingIgnoreCase(@Param("name") String name, Pageable page);

@@ -71,32 +71,52 @@ public interface ShopCrawler extends Crawler<Shop> {
         } while (url != null);
     }
 
-    //@Async
-    @Transactional
+    @Async
     default void crawlProduct(Element rawProduct, Category category, Shop shop) {
         String productUrl = extractProductUrl(rawProduct);
         if (productUrl != null) {
             getLogger().info("Crawling product: " + productUrl);
             String picUrl = extractProductImageUrl(rawProduct);
-            if (!getProductRepository().existsByUrl(productUrl)) {
-                try {
-                    Document productPage = getRequest(productUrl);
-                    Optional<Float> price = extractProductPrice(productPage);
-                    if (price.isPresent()) {
-                        String name = extractProductName(productPage);
-                        String description = extractDescription(productPage);
-                        String brandName = extractBrand(productPage);
-                        Brand brand = getBrandRepository().findByName(brandName).
-                                orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
+            Document productPage = null;
+            Optional<Float> price = Optional.empty();
 
-                        getLogger().info("Saving product (" + name + "): " + productUrl);
-                        getProductRepository().save(
-                                new Product(shop, productUrl, picUrl, name, category, brand, description, price.get()));
-                    }
-                } catch (IOException e) {
-                    getLogger().error("Error while trying to crawl product: " + productUrl, e);
+            try {
+                productPage = getRequest(productUrl);
+                price = extractProductPrice(productPage);
+            } catch (IOException e) {
+                getLogger().error("Error while trying to crawl product: " + productUrl, e);
+            }
+
+            if (price.isPresent()) {
+                if (getProductRepository().existsByUrl(productUrl)) {
+                    updateProductPriceIfNeeded(productUrl, price.get());
+                } else {
+                    saveNewProduct(category, shop, productUrl, picUrl, productPage, price);
                 }
             }
+        }
+    }
+
+    @Transactional
+    default void saveNewProduct(Category category, Shop shop, String productUrl, String picUrl, Document productPage, Optional<Float> price) {
+        String name = extractProductName(productPage);
+        String description = extractDescription(productPage);
+        String brandName = extractBrand(productPage);
+        Brand brand = getBrandRepository().findByName(brandName).
+                orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
+
+        getLogger().info("Saving product (" + name + "): " + productUrl);
+        getProductRepository().save(
+                new Product(shop, productUrl, picUrl, name, category, brand, description, price.get()));
+    }
+
+    @Transactional
+    default void updateProductPriceIfNeeded(String productUrl, Float price) {
+        Product alreadyExistProduct = getProductRepository().findByUrl(productUrl);
+        if (alreadyExistProduct.getPrice() != price) {
+            getLogger().info("Updating price of " + alreadyExistProduct.getName() + " to " + price);
+            alreadyExistProduct.setPrice(price);
+            getProductRepository().save(alreadyExistProduct);
         }
     }
 

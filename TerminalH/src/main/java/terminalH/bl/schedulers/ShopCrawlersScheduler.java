@@ -14,7 +14,7 @@ public class ShopCrawlersScheduler {
     @Inject
     private Collection<Crawler<Shop>> shopCrawlers;
 
-    @Scheduled(cron = "${CRAWLER_EXECUTION_TIMING}")
+    @Scheduled(fixedDelayString = "${CRAWLER_EXECUTION_FIXED_DELAY}", initialDelayString = "${CRAWLER_EXECUTION_INITIAL_DELAY}")
     public void executeCrawlers() {
         shopCrawlers.stream().forEach(crawler -> {
             try {
