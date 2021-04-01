@@ -32,7 +32,7 @@ public class DBSeedInitializer {
     }
 
     private void createOrUpdateSection(String name, Collection<String> categoryNames, SectionRepository sectionRepository, CategoryRepository categoryRepository) {
-        Section section = sectionRepository.findByName(name).orElseGet(() -> new Section(name));
+        Section section = sectionRepository.findByName(name).orElseGet(() -> sectionRepository.save(new Section(name)));
         for (String categoryName : categoryNames) {
             Category category = categoryRepository.findByName(categoryName)
                     .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
