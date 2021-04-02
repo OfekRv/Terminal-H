@@ -23,7 +23,7 @@ public class Category {
     private Long id;
     @Column(nullable = false, unique = false)
     private String name;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "categoryId")
     private Set<Product> products;
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)

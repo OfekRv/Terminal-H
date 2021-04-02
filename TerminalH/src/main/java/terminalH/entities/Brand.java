@@ -22,7 +22,7 @@ public class Brand {
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "brandId")
     private Set<Product> products;
 
