@@ -23,6 +23,9 @@ public interface ProductProjection {
 
     Brand getBrand();
 
+    @Value("#{target.brand.id}")
+    Long getBrandId();
+
     String getDescription();
 
     float getPrice();

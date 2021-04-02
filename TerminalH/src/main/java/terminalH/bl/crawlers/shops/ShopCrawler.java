@@ -51,7 +51,6 @@ public interface ShopCrawler extends Crawler<Shop> {
         updateLastScan(shop);
     }
 
-    //@Async
     default void crawlCategory(Category category, String categoryUrl, Shop shop) throws TerminalHCrawlerException {
         String url = categoryUrl;
         Document pageOfCategory;
