@@ -100,7 +100,7 @@ public interface ShopCrawler extends Crawler<Shop> {
     default void saveNewProduct(Category category, Shop shop, String productUrl, String picUrl, Document productPage, Optional<Float> price) {
         String name = extractProductName(productPage);
         String description = extractDescription(productPage);
-        String brandName = extractBrand(productPage);
+        String brandName = extractBrand(productPage).toUpperCase();
         Brand brand = getBrandRepository().findByName(brandName).
                 orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
 
