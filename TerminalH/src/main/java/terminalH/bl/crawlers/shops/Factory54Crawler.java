@@ -3,6 +3,7 @@ package terminalH.bl.crawlers.shops;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Value;
+import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
 import java.text.NumberFormat;
@@ -101,6 +102,12 @@ public class Factory54Crawler extends AbstractShopCrawler {
     @Override
     public String extractBrand(Element product) {
         return getFirstElementByClass(product, "showavimobile productHeader").select("a").text();
+    }
+
+    @Override
+    public Gender extractGender(Element product) {
+        // The default factory54 contains only woman products
+        return Gender.WOMEN;
     }
 
     @Override

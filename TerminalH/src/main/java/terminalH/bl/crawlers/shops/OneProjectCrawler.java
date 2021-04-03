@@ -4,6 +4,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
+import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
 import java.text.NumberFormat;
@@ -21,6 +22,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     private static final int PRODUCT_COUNT_IDX = 0;
     private static final int PRICE_IDX = 0;
     private static final int PAGE_IDX = 1;
+    private static final int GENDER_IDX = 1;
 
     @Value("${ONEPROJECT_URL}")
     private String oneProjectUrl;
@@ -98,6 +100,24 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     @Override
     public String extractBrand(Element product) {
         return getFirstElementByClass(product, "product-row").text();
+    }
+
+    @Override
+    public Gender extractGender(Element product) {
+        Elements productCategories = getFirstElementByClass(product, "breadcrumbs").select("li");
+
+        if (productCategories.size() < GENDER_IDX + 1) {
+            return null;
+        }
+
+        String rawGender = productCategories.get(GENDER_IDX).text();
+        if (rawGender.equals("נשים")) {
+            return Gender.WOMEN;
+        }
+        if (rawGender.equals("גברים")) {
+            return Gender.MEN;
+        }
+        return null;
     }
 
     @Override

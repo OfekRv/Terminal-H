@@ -21,13 +21,13 @@ public class DBSeedInitializer {
         return args ->
         {
             log.info("Start initializing DB seed");
-            createOrUpdateSection("בגדים", Arrays.asList("סוודרים וסווטשירטים", "ג'קטים ומעילים", "מכנסיים", "חולצות", "שמלות וחצאיות", "חליפות ואוברולים", "בגדים", "גוזיות ספורט", "טייצים ארוכים", "טייצים קצרים", "חולצות ספורט", "מכנסי ספורט קצרים", "ג'קטים ועליוניות", "גופיות ספורט", "חליפות", "מכנסי ספורט ארוכים", "ביגוד", "סריגים וסוודרים", "סוויטשרטים וקפוצונים", "שמלות", "חצאיות", "DENIM","בגדי גוף ואוברולים","סטים ומארזים","מכנסיים ואוברולים"), sectionRepository, categoryRepository);
+            createOrUpdateSection("בגדים", Arrays.asList("סוודרים וסווטשירטים", "ג'קטים ומעילים", "מכנסיים", "חולצות", "שמלות וחצאיות", "חליפות ואוברולים", "בגדים", "גוזיות ספורט", "טייצים ארוכים", "טייצים קצרים", "חולצות ספורט", "מכנסי ספורט קצרים", "ג'קטים ועליוניות", "גופיות ספורט", "חליפות", "מכנסי ספורט ארוכים", "ביגוד", "סריגים וסוודרים", "סוויטשרטים וקפוצונים", "שמלות", "חצאיות", "DENIM", "בגדי גוף ואוברולים", "סטים ומארזים", "מכנסיים ואוברולים"), sectionRepository, categoryRepository);
             createOrUpdateSection("אקססוריז", Arrays.asList("אקססוריז", "תיקים", "חגורות", "תכשיטים", "שעונים", "משקפי שמש", "צעיפים", "כובעים", "אביזרי שיער", "TECH + Gifts", "ACTIVE"), sectionRepository, categoryRepository);
             createOrUpdateSection("הלבשה תחתונה", Arrays.asList("הלבשה תחתונה", "פיג'מות והלבשה תחתונה", "תחתונים וגרביים"), sectionRepository, categoryRepository);
             createOrUpdateSection("בגדי ים", Arrays.asList("בגדי ים", "בגדי ים וחוף", "בגדי ים ובריכה", "ים ובריכה"), sectionRepository, categoryRepository);
             createOrUpdateSection("אביזרי ספורט", Arrays.asList("מכשירי כושר וציוד", "משחקים ופנאי", "ענפי ספורט", "אביזרי ספורט", "כדורגל"), sectionRepository, categoryRepository);
-            createOrUpdateSection("ביוטי", Arrays.asList("ביוטי ולייף סטייל", "LIFESTYLE","HAIR CARE","פארם","בישום","מוצרי איפור","טיפוח לפנים","טיפוח לגוף","טיפוח לשיער","בישום וטיפוח"), sectionRepository, categoryRepository);
-            createOrUpdateSection("נעליים", Arrays.asList("נעליים", "סניקרס", "מגפיים ומגפונים", "סנדלים", "נעליים שטוחות", "נעלי עקב", "נעלי ספורט", "נעלי נוחות", "נעלי פלטפורמה", "נעלי בית", "כפכפים", "מגפיים", "נעלי עבודה", "נעליים קלאסיות", "נעלי עור", "נעלי בד", "נעלי הרים","מגפיים ומגפונים"), sectionRepository, categoryRepository);
+            createOrUpdateSection("ביוטי", Arrays.asList("ביוטי ולייף סטייל", "LIFESTYLE", "HAIR CARE", "פארם", "בישום", "מוצרי איפור", "טיפוח לפנים", "טיפוח לגוף", "טיפוח לשיער", "בישום וטיפוח"), sectionRepository, categoryRepository);
+            createOrUpdateSection("נעליים", Arrays.asList("נעליים", "סניקרס", "מגפיים ומגפונים", "סנדלים", "נעליים שטוחות", "נעלי עקב", "נעלי ספורט", "נעלי נוחות", "נעלי פלטפורמה", "נעלי בית", "כפכפים", "מגפיים", "נעלי עבודה", "נעליים קלאסיות", "נעלי עור", "נעלי בד", "נעלי הרים", "מגפיים ומגפונים"), sectionRepository, categoryRepository);
             log.info("Finished initializing DB seed");
         };
     }
@@ -37,9 +37,11 @@ public class DBSeedInitializer {
         Section section = getOrSaveSection(name, sectionRepository);
         for (String categoryName : categoryNames) {
             Category category = getOrSaveCategory(categoryName, categoryRepository);
-            section.getCategories().add(category);
+            if (category.getSection() == null) {
+                category.setSection(section);
+                categoryRepository.save(category);
+            }
         }
-        sectionRepository.save(section);
     }
 
     @Transactional

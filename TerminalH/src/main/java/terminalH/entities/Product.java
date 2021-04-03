@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
+import terminalH.entities.enums.Gender;
 
 import javax.persistence.*;
 
@@ -28,6 +30,9 @@ public class Product {
     private String pictureUrl;
     @Column(nullable = false, unique = false)
     private String name;
+    @Column(nullable = true, unique = false)
+    @Nullable
+    private Gender gender;
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "categoryId")
     private Category category;
@@ -39,13 +44,14 @@ public class Product {
     @Column(nullable = false, unique = false)
     private float price;
 
-    public Product(Shop shop, String url, String pictureUrl, String name, Category category, Brand brand, String description, float price) {
+    public Product(Shop shop, String url, String pictureUrl, String name, Category category, Brand brand, Gender gender, String description, float price) {
         this.shop = shop;
         this.url = url;
         this.pictureUrl = pictureUrl;
         this.name = name;
         this.category = category;
         this.brand = brand;
+        this.gender = gender;
         this.description = description;
         this.price = price;
     }

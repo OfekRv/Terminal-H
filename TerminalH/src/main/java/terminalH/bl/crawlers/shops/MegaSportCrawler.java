@@ -4,6 +4,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
+import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
 import java.text.NumberFormat;
@@ -18,8 +19,11 @@ import static terminalH.utils.CrawlerUtils.getFirstElementByClass;
 @Named
 public class MegaSportCrawler extends AbstractShopCrawler {
     private static final String CURRENCY_SEPARATOR = " ";
+    private static final String GENDER_SEPARATOR = ",";
     private static final int PRICE_IDX = 0;
     private static final int PAGE_IDX = 1;
+    private static final int GENDER_IDX = 0;
+    private static final int SINGLE_GENDER = 1;
 
     @Value("${MEGASPORT_URL}")
     private String megasportUrl;
@@ -95,6 +99,28 @@ public class MegaSportCrawler extends AbstractShopCrawler {
     @Override
     public String extractBrand(Element product) {
         return product.select("div[data-th=מותג]").text();
+    }
+
+    @Override
+    public Gender extractGender(Element product) {
+        Optional<Element> genderSite =
+                Optional.of(getFirstElementByClass(product, "col_label_data_1w attr_gender_site"));
+
+        if (genderSite.isPresent()) {
+            String[] genders =
+                    getFirstElementByClass(genderSite.get(), "col_data_1").text().split(GENDER_SEPARATOR);
+
+            if (genders.length == SINGLE_GENDER) {
+                if (genders[GENDER_IDX].equals("גברים")) {
+                    return Gender.MEN;
+                }
+                if (genders[GENDER_IDX].equals("נשים")) {
+                    return Gender.WOMEN;
+                }
+            }
+            return Gender.UNISEX;
+        }
+        return null;
     }
 
     @Override

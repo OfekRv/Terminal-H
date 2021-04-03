@@ -9,6 +9,7 @@ import terminalH.entities.Brand;
 import terminalH.entities.Category;
 import terminalH.entities.Product;
 import terminalH.entities.Shop;
+import terminalH.entities.enums.Gender;
 import terminalH.exceptions.TerminalHCrawlerException;
 import terminalH.repositories.BrandRepository;
 import terminalH.repositories.CategoryRepository;
@@ -103,10 +104,10 @@ public interface ShopCrawler extends Crawler<Shop> {
         String brandName = extractBrand(productPage).toUpperCase();
         Brand brand = getBrandRepository().findByName(brandName).
                 orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
-
+        Gender gender = extractGender(productPage);
         getLogger().info("Saving product (" + name + "): " + productUrl);
         getProductRepository().save(
-                new Product(shop, productUrl, picUrl, name, category, brand, description, price.get()));
+                new Product(shop, productUrl, picUrl, name, category, brand, gender, description, price.get()));
     }
 
     @Transactional
@@ -162,6 +163,8 @@ public interface ShopCrawler extends Crawler<Shop> {
     String extractCategoryUrl(Element rawCategory);
 
     String extractBrand(Element product);
+
+    Gender extractGender(Element product);
 
     String getNextPageUrl(Document categoryPage);
 
