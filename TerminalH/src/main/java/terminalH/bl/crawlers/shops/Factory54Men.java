@@ -4,6 +4,9 @@ import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Value;
 import terminalH.entities.enums.Gender;
 
+import javax.inject.Named;
+
+@Named
 public class Factory54Men extends Factory54Crawler {
     @Value("${FACTORY54_MEN_CATEGORY_PATH}")
     private String menCategoryPath;
