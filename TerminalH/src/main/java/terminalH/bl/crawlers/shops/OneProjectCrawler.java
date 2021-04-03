@@ -104,8 +104,12 @@ public class OneProjectCrawler extends AbstractShopCrawler {
 
     @Override
     public Gender extractGender(Element product) {
-        Elements productCategories = getFirstElementByClass(product, "breadcrumbs").select("li");
+        Optional<Element> productCategoriesContainer = Optional.ofNullable(getFirstElementByClass(product, "breadcrumbs"));
+        if (!productCategoriesContainer.isPresent()) {
+            return null;
+        }
 
+        Elements productCategories = getFirstElementByClass(product, "breadcrumbs").select("li");
         if (productCategories.size() < GENDER_IDX + 1) {
             return null;
         }

@@ -104,7 +104,7 @@ public class MegaSportCrawler extends AbstractShopCrawler {
     @Override
     public Gender extractGender(Element product) {
         Optional<Element> genderSite =
-                Optional.of(getFirstElementByClass(product, "col_label_data_1w attr_gender_site"));
+                Optional.ofNullable(getFirstElementByClass(product, "col_label_data_1w attr_gender_site"));
 
         if (genderSite.isPresent()) {
             String[] genders =
