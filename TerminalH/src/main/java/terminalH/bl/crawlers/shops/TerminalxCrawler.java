@@ -47,8 +47,8 @@ public class TerminalxCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public Element extractProductsContainer(Element categoryPage) {
-        return getFirstElementByClass(categoryPage, "products list items product-items");
+    public Optional<Element> extractProductsContainer(Element categoryPage) {
+        return Optional.ofNullable(getFirstElementByClass(categoryPage, "products list items product-items"));
     }
 
     @Override
@@ -59,10 +59,10 @@ public class TerminalxCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String extractProductUrl(Element product) {
-        return extractUrl(
+    public Optional<String> extractProductUrl(Element product) {
+        return Optional.ofNullable(extractUrl(
                 getFirstElementByClass(product,
-                        "product photo product-item-photo idus-lazy-fadeOLD product-item-link"));
+                        "product photo product-item-photo idus-lazy-fadeOLD product-item-link")));
     }
 
     @Override
@@ -130,12 +130,13 @@ public class TerminalxCrawler extends AbstractShopCrawler {
     @Override
     public String getNextPageUrl(Document categoryPage) {
         String url = null;
-        Element pages = getFirstElementByClass(categoryPage, "items pages-items");
-        if (pages != null) {
+        Optional<Element> pages =
+                Optional.ofNullable(getFirstElementByClass(categoryPage, "items pages-items"));
+        if (pages.isPresent()) {
             int currentPage = Integer.parseInt(
-                    getFirstElementByClass(pages, "item current").
+                    getFirstElementByClass(pages.get(), "item current").
                             select("span").get(PAGE_IDX).text());
-            Elements nextPageElement = pages.select("li:contains(" + (currentPage + 1) + ")");
+            Elements nextPageElement = pages.get().select("li:contains(" + (currentPage + 1) + ")");
             if (!nextPageElement.isEmpty()) {
                 url = extractUrl(nextPageElement.first());
             }

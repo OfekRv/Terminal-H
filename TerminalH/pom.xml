@@ -13,7 +13,7 @@
 
     <groupId>terminalH</groupId>
     <artifactId>TerminalH</artifactId>
-    <version>0.5.4</version>
+    <version>0.5.5</version>
 
     <dependencies>
         <dependency>

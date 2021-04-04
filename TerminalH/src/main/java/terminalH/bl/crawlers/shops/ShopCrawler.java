@@ -34,10 +34,10 @@ public interface ShopCrawler extends Crawler<Shop> {
             categories.stream().
                     forEach(rawCategory -> {
                         try {
-                            Category category = extractCategory(rawCategory);
-                            if (category != null) {
-                                getLogger().info("Crawling category: " + category.getName());
-                                crawlCategory(category, extractCategoryUrl(rawCategory), shop);
+                            Optional<Category> category = extractCategory(rawCategory);
+                            if (category.isPresent()) {
+                                getLogger().info("Crawling category: " + category.get().getName());
+                                crawlCategory(category.get(), extractCategoryUrl(rawCategory), shop);
                             }
                         } catch (TerminalHCrawlerException e) {
                             getLogger().error("Error while trying to crawl category in shop: " + shop.getName(), e);
@@ -53,45 +53,45 @@ public interface ShopCrawler extends Crawler<Shop> {
     }
 
     default void crawlCategory(Category category, String categoryUrl, Shop shop) throws TerminalHCrawlerException {
-        String url = categoryUrl;
+        Optional<String> url = Optional.of(categoryUrl);
         Document pageOfCategory;
         do {
             try {
-                pageOfCategory = getRequest(url);
+                pageOfCategory = getRequest(url.get());
             } catch (IOException e) {
                 throw new TerminalHCrawlerException("Could not get category or page html", e);
             }
 
-            Element productsContainer = extractProductsContainer(pageOfCategory);
-            if (productsContainer != null) {
-                Collection<Element> products = extractRawProducts(productsContainer);
+            Optional<Element> productsContainer = extractProductsContainer(pageOfCategory);
+            if (productsContainer.isPresent()) {
+                Collection<Element> products = extractRawProducts(productsContainer.get());
                 products.stream().forEach(product -> crawlProduct(product, category, shop));
             }
-            url = getNextPageUrl(pageOfCategory);
-        } while (url != null);
+            url = Optional.ofNullable(getNextPageUrl(pageOfCategory));
+        } while (url.isPresent());
     }
 
     @Async
     default void crawlProduct(Element rawProduct, Category category, Shop shop) {
-        String productUrl = extractProductUrl(rawProduct);
-        if (productUrl != null) {
+        Optional<String> productUrl = extractProductUrl(rawProduct);
+        if (productUrl.isPresent()) {
             getLogger().info("Crawling product: " + productUrl);
             String picUrl = extractProductImageUrl(rawProduct);
             Document productPage = null;
             Optional<Float> price = Optional.empty();
 
             try {
-                productPage = getRequest(productUrl);
+                productPage = getRequest(productUrl.get());
                 price = extractProductPrice(productPage);
             } catch (IOException e) {
                 getLogger().error("Error while trying to crawl product: " + productUrl, e);
             }
 
             if (price.isPresent()) {
-                if (getProductRepository().existsByUrl(productUrl)) {
-                    updateProductPriceIfNeeded(productUrl, price.get());
+                if (getProductRepository().existsByUrl(productUrl.get())) {
+                    updateProductPriceIfNeeded(productUrl.get(), price.get());
                 } else {
-                    saveNewProduct(category, shop, productUrl, picUrl, productPage, price);
+                    saveNewProduct(category, shop, productUrl.get(), picUrl, productPage, price);
                 }
             }
         }
@@ -120,15 +120,15 @@ public interface ShopCrawler extends Crawler<Shop> {
         }
     }
 
-    default Category extractCategory(Element rawCategory) {
+    default Optional<Category> extractCategory(Element rawCategory) {
         String name = extractCategoryName(rawCategory);
 
         if (getIgnoredCategories().contains(name)) {
-            return null;
+            return Optional.empty();
         }
 
-        return getCategoryRepository().findByName(name).
-                orElseGet(() -> getCategoryRepository().save(new Category(name)));
+        return Optional.of(getCategoryRepository().findByName(name).
+                orElseGet(() -> getCategoryRepository().save(new Category(name))));
     }
 
     default Shop getShopToCrawl() {
@@ -144,11 +144,11 @@ public interface ShopCrawler extends Crawler<Shop> {
 
     Collection<Element> extractRawCategories(Element landPage);
 
-    Element extractProductsContainer(Element categoryPage);
+    Optional<Element> extractProductsContainer(Element categoryPage);
 
     Collection<Element> extractRawProducts(Element productContainer);
 
-    String extractProductUrl(Element product);
+    Optional<String> extractProductUrl(Element product);
 
     String extractProductImageUrl(Element product);
 

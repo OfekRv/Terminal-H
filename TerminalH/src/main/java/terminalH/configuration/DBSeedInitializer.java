@@ -26,7 +26,7 @@ public class DBSeedInitializer {
             createOrUpdateSection("הלבשה תחתונה", Arrays.asList("הלבשה תחתונה", "פיג'מות והלבשה תחתונה", "תחתונים וגרביים"), sectionRepository, categoryRepository);
             createOrUpdateSection("בגדי ים", Arrays.asList("בגדי ים", "בגדי ים וחוף", "בגדי ים ובריכה", "ים ובריכה"), sectionRepository, categoryRepository);
             createOrUpdateSection("אביזרי ספורט", Arrays.asList("מכשירי כושר וציוד", "משחקים ופנאי", "ענפי ספורט", "אביזרי ספורט", "כדורגל"), sectionRepository, categoryRepository);
-            createOrUpdateSection("ביוטי", Arrays.asList("ביוטי ולייף סטייל", "LIFESTYLE", "HAIR CARE", "פארם", "בישום", "מוצרי איפור", "טיפוח לפנים", "טיפוח לגוף", "טיפוח לשיער", "בישום וטיפוח"), sectionRepository, categoryRepository);
+            createOrUpdateSection("ביוטי", Arrays.asList("ביוטי ולייף סטייל", "LIFESTYLE", "HAIR CARE", "פארם", "בישום", "מוצרי איפור", "טיפוח לפנים", "טיפוח לגוף", "טיפוח לשיער", "בישום וטיפוח", "לייף סטייל"), sectionRepository, categoryRepository);
             createOrUpdateSection("נעליים", Arrays.asList("נעליים", "סניקרס", "מגפיים ומגפונים", "סנדלים", "נעליים שטוחות", "נעלי עקב", "נעלי ספורט", "נעלי נוחות", "נעלי פלטפורמה", "נעלי בית", "כפכפים", "מגפיים", "נעלי עבודה", "נעליים קלאסיות", "נעלי עור", "נעלי בד", "נעלי הרים", "מגפיים ומגפונים"), sectionRepository, categoryRepository);
             log.info("Finished initializing DB seed");
         };

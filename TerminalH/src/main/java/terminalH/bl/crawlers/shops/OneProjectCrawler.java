@@ -39,8 +39,8 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public Element extractProductsContainer(Element categoryPage) {
-        return getFirstElementByClass(categoryPage, "gallery-content-results twoColumns");
+    public Optional<Element> extractProductsContainer(Element categoryPage) {
+        return Optional.ofNullable(getFirstElementByClass(categoryPage, "gallery-content-results twoColumns"));
     }
 
     @Override
@@ -49,8 +49,9 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String extractProductUrl(Element product) {
-        return extractUrl(getFirstElementByClass(product, "gallery-content-results-item-imagebox"));
+    public Optional<String> extractProductUrl(Element product) {
+        return Optional.ofNullable(
+                extractUrl(getFirstElementByClass(product, "gallery-content-results-item-imagebox")));
     }
 
     @Override
@@ -62,12 +63,13 @@ public class OneProjectCrawler extends AbstractShopCrawler {
 
     @Override
     public Optional<Float> extractProductPrice(Element product) {
-        Element rawPrice = getFirstElementByClass(product, "product_price_real");
-        if (rawPrice == null) {
+        Optional<Element> rawPrice =
+                Optional.ofNullable(getFirstElementByClass(product, "product_price_real"));
+        if (!rawPrice.isPresent()) {
             return Optional.empty();
         }
 
-        String price = rawPrice.attr("data-price");
+        String price = rawPrice.get().attr("data-price");
         try {
             return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
         } catch (ParseException e) {

@@ -35,8 +35,8 @@ public class Factory54Crawler extends AbstractShopCrawler {
     }
 
     @Override
-    public Element extractProductsContainer(Element categoryPage) {
-        return getFirstElementByClass(categoryPage, "group-product-item");
+    public Optional<Element> extractProductsContainer(Element categoryPage) {
+        return Optional.ofNullable(getFirstElementByClass(categoryPage, "group-product-item"));
     }
 
     @Override
@@ -45,9 +45,10 @@ public class Factory54Crawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String extractProductUrl(Element product) {
+    public Optional<String> extractProductUrl(Element product) {
         Element titleElement = product.select("h2").first();
-        return titleElement.text().toLowerCase().contains(NO_DESIGNER) ? null : extractUrl(titleElement);
+        return titleElement.text().toLowerCase().contains(NO_DESIGNER)
+                ? Optional.empty() : Optional.ofNullable(extractUrl(titleElement));
     }
 
     @Override
@@ -113,12 +114,13 @@ public class Factory54Crawler extends AbstractShopCrawler {
     @Override
     public String getNextPageUrl(Document categoryPage) {
         String url = null;
-        Element pages = getFirstElementByClass(categoryPage, "pages clearfix");
-        if (pages != null) {
-            Element rawNextPageLink = getFirstElementByClass(pages, "next");
+        Optional<Element> pages = Optional.ofNullable(getFirstElementByClass(categoryPage, "pages clearfix"));
+        if (pages.isPresent()) {
+            Optional<Element> rawNextPageLink =
+                    Optional.ofNullable(getFirstElementByClass(pages.get(), "next"));
             String nextPageUrl = null;
-            if (rawNextPageLink != null) {
-                url = extractUrl(rawNextPageLink);
+            if (rawNextPageLink.isPresent()) {
+                url = extractUrl(rawNextPageLink.get());
             }
         }
         return url;

@@ -23,6 +23,7 @@ public class Factory54Men extends Factory54Crawler {
         return super.getShopUrl() + menCategoryPath;
     }
 
+    @Override
     public String getShopName() {
         return factory54MenName;
     }
