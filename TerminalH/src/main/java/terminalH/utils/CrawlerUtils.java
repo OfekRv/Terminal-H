@@ -1,6 +1,5 @@
 package terminalH.utils;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,7 +9,6 @@ import org.jsoup.select.Elements;
 import javax.inject.Named;
 import java.io.IOException;
 
-@Slf4j
 @Named
 public class CrawlerUtils {
     public static String EMPTY = "";

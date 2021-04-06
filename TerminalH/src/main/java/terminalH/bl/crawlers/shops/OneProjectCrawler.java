@@ -123,6 +123,11 @@ public class OneProjectCrawler extends AbstractShopCrawler {
         if (rawGender.equals("גברים")) {
             return Gender.MEN;
         }
+        if (rawGender.equals("תינוקות")
+                || rawGender.equals("בנים")
+                || rawGender.equals("בנות")) {
+            return Gender.KIDS;
+        }
         return null;
     }
 

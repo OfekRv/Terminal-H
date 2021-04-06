@@ -124,6 +124,13 @@ public class TerminalxCrawler extends AbstractShopCrawler {
         if (rawGender.equals("גברים")) {
             return Gender.MEN;
         }
+        if (rawGender.equals("TEEN")
+                || rawGender.equals("בנות")
+                || rawGender.equals("בייבי בנות")
+                || rawGender.equals("בייבי בנים")
+                || rawGender.equals("בנים")) {
+            return Gender.KIDS;
+        }
         return null;
     }
 

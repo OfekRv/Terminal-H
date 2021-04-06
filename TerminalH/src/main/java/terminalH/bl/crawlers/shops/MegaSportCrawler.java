@@ -118,10 +118,15 @@ public class MegaSportCrawler extends AbstractShopCrawler {
                 if (genders[GENDER_IDX].equals("נשים")) {
                     return Gender.WOMEN;
                 }
-                if (genders[GENDER_IDX].equals("ילדים ונוער") || genders[GENDER_IDX].equals("ילדים ונוער")) {
-                    return Gender.KIDS;
-                }
             }
+
+            if (genders[GENDER_IDX].equals("ילדים ונוער")
+                    || genders[GENDER_IDX].equals("ילדות ונערות")
+                    || genders[GENDER_IDX].equals("תינוקות")) {
+                return Gender.KIDS;
+            }
+
+            // Multiple genders & not kids, which means men + women
             return Gender.UNISEX;
         }
         return null;

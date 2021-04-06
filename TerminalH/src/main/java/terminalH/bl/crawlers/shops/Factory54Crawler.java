@@ -14,13 +14,12 @@ import java.util.Optional;
 
 import static terminalH.utils.CrawlerUtils.*;
 
-//@Named
+@Named
 public class Factory54Crawler extends AbstractShopCrawler {
     private static final String NO_DESIGNER = "designer parameter missing";
     private static final String CURRENCY_SEPARATOR = " ";
     private static final String NEW_LINE = "\n";
     private static final int PRICE_IDX = 0;
-    private static final int PAGE_IDX = 1;
 
     @Value("${FACTORY54_URL}")
     private String factory54Url;
