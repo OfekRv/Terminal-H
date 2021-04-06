@@ -77,7 +77,7 @@ public class TerminalxCrawler extends AbstractShopCrawler {
         String price = product.select("span.price").first().text();
         price = price.split(CURRENCY_SEPARATOR)[PRICE_IDX];
         try {
-            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
+            return Optional.ofNullable(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
         } catch (ParseException e) {
             getLogger().warn("Could not extract price");
         }

@@ -14,7 +14,7 @@ import java.util.Optional;
 
 import static terminalH.utils.CrawlerUtils.*;
 
-@Named
+//@Named
 public class Factory54Crawler extends AbstractShopCrawler {
     private static final String NO_DESIGNER = "designer parameter missing";
     private static final String CURRENCY_SEPARATOR = " ";

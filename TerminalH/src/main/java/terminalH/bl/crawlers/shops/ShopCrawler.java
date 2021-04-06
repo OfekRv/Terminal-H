@@ -75,7 +75,7 @@ public interface ShopCrawler extends Crawler<Shop> {
     default void crawlProduct(Element rawProduct, Category category, Shop shop) {
         Optional<String> productUrl = extractProductUrl(rawProduct);
         if (productUrl.isPresent()) {
-            getLogger().info("Crawling product: " + productUrl);
+            getLogger().info("Crawling product: " + productUrl.get());
             String picUrl = extractProductImageUrl(rawProduct);
             Document productPage = null;
             Optional<Float> price = Optional.empty();
@@ -91,14 +91,14 @@ public interface ShopCrawler extends Crawler<Shop> {
                 if (getProductRepository().existsByUrl(productUrl.get())) {
                     updateProductPriceIfNeeded(productUrl.get(), price.get());
                 } else {
-                    saveNewProduct(category, shop, productUrl.get(), picUrl, productPage, price);
+                    saveNewProduct(category, shop, productUrl.get(), picUrl, productPage, price.get());
                 }
             }
         }
     }
 
     @Transactional
-    default void saveNewProduct(Category category, Shop shop, String productUrl, String picUrl, Document productPage, Optional<Float> price) {
+    default void saveNewProduct(Category category, Shop shop, String productUrl, String picUrl, Document productPage, Float price) {
         String name = extractProductName(productPage);
         String description = extractDescription(productPage);
         String brandName = extractBrand(productPage).toUpperCase();
@@ -107,7 +107,7 @@ public interface ShopCrawler extends Crawler<Shop> {
         Gender gender = extractGender(productPage);
         getLogger().info("Saving product (" + name + "): " + productUrl);
         getProductRepository().save(
-                new Product(shop, productUrl, picUrl, name, category, brand, gender, description, price.get()));
+                new Product(shop, productUrl, picUrl, name, category, brand, gender, description, price));
     }
 
     @Transactional
