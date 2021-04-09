@@ -147,7 +147,6 @@ public class MegaSportCrawler extends AbstractShopCrawler {
             }
         }
         return url;
-
     }
 
     @Override

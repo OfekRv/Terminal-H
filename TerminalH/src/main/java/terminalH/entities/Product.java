@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 import terminalH.entities.enums.Gender;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Table(name = "trh_products")
@@ -44,7 +45,15 @@ public class Product {
     @Column(nullable = false, unique = false)
     private float price;
 
-    public Product(Shop shop, String url, String pictureUrl, String name, Category category, Brand brand, Gender gender, String description, float price) {
+    public Product(Shop shop,
+                   String url,
+                   String pictureUrl,
+                   String name,
+                   Category category,
+                   Brand brand,
+                   Gender gender,
+                   String description,
+                   float price) {
         this.shop = shop;
         this.url = url;
         this.pictureUrl = pictureUrl;
