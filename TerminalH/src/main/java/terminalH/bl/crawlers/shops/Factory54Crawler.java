@@ -3,9 +3,7 @@ package terminalH.bl.crawlers.shops;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Value;
-import terminalH.entities.enums.Gender;
 
-import javax.inject.Named;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Collection;
@@ -14,8 +12,7 @@ import java.util.Optional;
 
 import static terminalH.utils.CrawlerUtils.*;
 
-@Named
-public class Factory54Crawler extends AbstractShopCrawler {
+public abstract class Factory54Crawler extends AbstractShopCrawler {
     private static final String NO_DESIGNER = "designer parameter missing";
     private static final String CURRENCY_SEPARATOR = " ";
     private static final String NEW_LINE = "\n";
@@ -23,8 +20,6 @@ public class Factory54Crawler extends AbstractShopCrawler {
 
     @Value("${FACTORY54_URL}")
     private String factory54Url;
-    @Value("${FACTORY54_NAME}")
-    private String factory54Name;
     @Value("#{'${FACTORY54_IGNORE_CATEGORIES}'.split(',')}")
     private Collection<String> ignoreCategories;
 
@@ -105,12 +100,6 @@ public class Factory54Crawler extends AbstractShopCrawler {
     }
 
     @Override
-    public Gender extractGender(Element product) {
-        // The default factory54 contains only woman products
-        return Gender.WOMEN;
-    }
-
-    @Override
     public String getNextPageUrl(Document categoryPage) {
         String url = null;
         Optional<Element> pages = Optional.ofNullable(getFirstElementByClass(categoryPage, "pages clearfix"));
@@ -131,12 +120,8 @@ public class Factory54Crawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String getShopName() {
-        return factory54Name;
-    }
-
-    @Override
     public Collection<String> getIgnoredCategories() {
         return ignoreCategories;
     }
+
 }

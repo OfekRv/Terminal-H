@@ -7,25 +7,25 @@ import terminalH.entities.enums.Gender;
 import javax.inject.Named;
 
 @Named
-public class Factory54Kids extends Factory54Crawler {
-    @Value("${FACTORY54_KIDS_NAME}")
-    private String factory54KidsName;
-    @Value("${FACTORY54_KIDS_CATEGORY_PATH}")
-    private String kidsCategoryPath;
+public class Factory54MenCrawler extends Factory54Crawler {
+    @Value("${FACTORY54_MEN_NAME}")
+    private String factory54MenName;
+    @Value("${FACTORY54_MEN_CATEGORY_PATH}")
+    private String menCategoryPath;
 
     @Override
     public Gender extractGender(Element product) {
-        return Gender.KIDS;
+        return Gender.MEN;
     }
 
     @Override
     public String getShopUrl() {
-        return super.getShopUrl() + kidsCategoryPath;
+        return super.getShopUrl() + menCategoryPath;
     }
 
     @Override
     public String getShopName() {
-        return factory54KidsName;
+        return factory54MenName;
     }
 
 }

@@ -73,7 +73,9 @@ public class AfroditaCrawler extends AbstractShopCrawler {
 
     @Override
     public String extractDescription(Element product) {
-        return null;
+        Optional<Element> description =
+                Optional.ofNullable(getFirstElementByClass(product, "short-description no-border"));
+        return description.isPresent() ? description.get().text() : null;
     }
 
     @Override
