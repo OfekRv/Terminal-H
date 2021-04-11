@@ -18,15 +18,15 @@ public class RestDataConfiguration {
             config.exposeIdsFor(Section.class);
             config.exposeIdsFor(Shop.class);
             config.getExposureConfiguration().forDomainType(Brand.class).withItemExposure((metadata, httpmethods) ->
-                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.POST));
+                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.PUT, HttpMethod.POST));
             config.getExposureConfiguration().forDomainType(Product.class).withItemExposure((metadata, httpmethods) ->
-                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.POST));
+                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.PUT, HttpMethod.POST));
             config.getExposureConfiguration().forDomainType(Category.class).withItemExposure((metadata, httpmethods) ->
-                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.POST));
+                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.PUT, HttpMethod.POST));
             config.getExposureConfiguration().forDomainType(Section.class).withItemExposure((metadata, httpmethods) ->
-                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.POST));
+                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.PUT, HttpMethod.POST));
             config.getExposureConfiguration().forDomainType(Shop.class).withItemExposure((metadata, httpmethods) ->
-                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.POST));
+                    httpmethods.disable(HttpMethod.DELETE, HttpMethod.PATCH, HttpMethod.PUT, HttpMethod.POST));
         });
     }
 }
