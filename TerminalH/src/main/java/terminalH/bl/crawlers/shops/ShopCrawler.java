@@ -88,10 +88,15 @@ public interface ShopCrawler extends Crawler<Shop> {
             }
 
             if (price.isPresent()) {
-                if (getProductRepository().existsByUrl(productUrl.get())) {
-                    updateProductPriceIfNeeded(productUrl.get(), price.get());
+                if (!isInStock(productPage)) {
+                    getLogger().info("Deleting product out of stock: " + productUrl);
+                    getProductRepository().deleteByUrl(productUrl.get());
                 } else {
-                    saveNewProduct(category, shop, productUrl.get(), picUrl, productPage, price.get());
+                    if (getProductRepository().existsByUrl(productUrl.get())) {
+                        updateProductPriceIfNeeded(productUrl.get(), price.get());
+                    } else {
+                        saveNewProduct(category, shop, productUrl.get(), picUrl, productPage, price.get());
+                    }
                 }
             }
         }
@@ -157,6 +162,8 @@ public interface ShopCrawler extends Crawler<Shop> {
     String extractProductName(Element product);
 
     String extractDescription(Element product);
+
+    boolean isInStock(Element product);
 
     String extractCategoryName(Element rawCategory);
 

@@ -18,6 +18,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Queryds
     @RestResource(exported = false)
     Product findByUrl(String url);
 
+    @RestResource(exported = false)
+    void deleteByUrl(String url);
+
     @Override
     default void customize(QuerydslBindings bindings, QProduct product) {
         bindings.bind(product.name).first((name, value) -> name.containsIgnoreCase(value));

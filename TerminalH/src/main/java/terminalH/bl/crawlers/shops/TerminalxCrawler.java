@@ -95,6 +95,11 @@ public class TerminalxCrawler extends AbstractShopCrawler {
     }
 
     @Override
+    public boolean isInStock(Element product) {
+        return getFirstElementByClass(product, "product-item-stampa stampa_outofstock") == null;
+    }
+
+    @Override
     public String extractCategoryName(Element rawCategory) {
         return rawCategory.text();
     }

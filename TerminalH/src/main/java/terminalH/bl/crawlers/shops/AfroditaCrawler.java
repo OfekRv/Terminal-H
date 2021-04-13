@@ -79,6 +79,11 @@ public class AfroditaCrawler extends AbstractShopCrawler {
     }
 
     @Override
+    public boolean isInStock(Element product) {
+        return true;
+    }
+
+    @Override
     public String extractCategoryName(Element rawCategory) {
         return rawCategory.select("a").first().text();
     }
