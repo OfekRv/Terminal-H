@@ -8,19 +8,22 @@ import javax.inject.Named;
 
 @Named
 public class Factory54WomenCrawler extends Factory54Crawler {
-    private static final String NO_DESIGNER = "designer parameter missing";
-    private static final String CURRENCY_SEPARATOR = " ";
-    private static final String NEW_LINE = "\n";
-    private static final int PRICE_IDX = 0;
-
     @Value("${FACTORY54_WOMEN_NAME}")
     private String factory54Name;
+    @Value("${FACTORY54_WOMEN_CATEGORY_PATH}")
+    private String womenCategoryPath;
 
     @Override
     public Gender extractGender(Element product) {
         return Gender.WOMEN;
     }
 
+    @Override
+    public String getShopUrl() {
+        return super.getShopUrl() + womenCategoryPath;
+    }
+
+    @Override
     public String getShopName() {
         return factory54Name;
     }
