@@ -8,7 +8,7 @@ import org.springframework.lang.Nullable;
 import terminalH.entities.enums.Gender;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "trh_products")
@@ -44,6 +44,8 @@ public class Product {
     private String description;
     @Column(nullable = false, unique = false)
     private float price;
+    @Column(nullable = true, unique = false)
+    private LocalDateTime lastScan;
 
     public Product(Shop shop,
                    String url,
@@ -53,7 +55,8 @@ public class Product {
                    Brand brand,
                    Gender gender,
                    String description,
-                   float price) {
+                   float price,
+                   LocalDateTime lastScan) {
         this.shop = shop;
         this.url = url;
         this.pictureUrl = pictureUrl;
@@ -63,5 +66,6 @@ public class Product {
         this.gender = gender;
         this.description = description;
         this.price = price;
+        this.lastScan = lastScan;
     }
 }

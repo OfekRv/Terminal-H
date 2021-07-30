@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import terminalH.entities.Product;
 import terminalH.entities.QProduct;
 
+import java.time.LocalDateTime;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, QuerydslPredicateExecutor<Product>,
         QuerydslBinderCustomizer<QProduct> {
@@ -20,6 +22,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Queryds
 
     @RestResource(exported = false)
     void deleteByUrl(String url);
+
+    @RestResource(exported = false)
+    void deleteByLastScanBefore(LocalDateTime prevScanTime);
 
     @Override
     default void customize(QuerydslBindings bindings, QProduct product) {

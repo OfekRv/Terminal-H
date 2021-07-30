@@ -27,6 +27,7 @@ import static terminalH.utils.CrawlerUtils.getRequest;
 public interface ShopCrawler extends Crawler<Shop> {
     default void crawl() throws TerminalHCrawlerException {
         Shop shop = getShopToCrawl();
+        LocalDateTime prevScanTime = shop.getLastScan();
         getLogger().info("Crawling shop: " + shop.getName());
         try {
             Document landPage = getRequest(shop.getUrl());
@@ -50,6 +51,9 @@ public interface ShopCrawler extends Crawler<Shop> {
 
         getLogger().info("finished Crawling shop: " + shop.getName());
         updateLastScan(shop);
+        getLogger().info("Cleaning out of stocks of shop: " + shop.getName());
+        getProductRepository().deleteByLastScanBefore(prevScanTime);
+        getLogger().info("Finished cleaning out of stocks of shop: " + shop.getName());
     }
 
     default void crawlCategory(Category category, String categoryUrl, Shop shop) throws TerminalHCrawlerException {
@@ -93,7 +97,7 @@ public interface ShopCrawler extends Crawler<Shop> {
                     getProductRepository().deleteByUrl(productUrl.get());
                 } else {
                     if (getProductRepository().existsByUrl(productUrl.get())) {
-                        updateProductPriceIfNeeded(productUrl.get(), price.get());
+                        updateProduct(productUrl.get(), price.get());
                     } else {
                         saveNewProduct(category, shop, productUrl.get(), picUrl, productPage, price.get());
                     }
@@ -112,17 +116,18 @@ public interface ShopCrawler extends Crawler<Shop> {
         Gender gender = extractGender(productPage);
         getLogger().info("Saving product (" + name + "): " + productUrl);
         getProductRepository().save(
-                new Product(shop, productUrl, picUrl, name, category, brand, gender, description, price));
+                new Product(shop, productUrl, picUrl, name, category, brand, gender, description, price, LocalDateTime.now()));
     }
 
     @Transactional
-    default void updateProductPriceIfNeeded(String productUrl, Float price) {
+    default void updateProduct(String productUrl, Float price) {
         Product alreadyExistProduct = getProductRepository().findByUrl(productUrl);
         if (alreadyExistProduct.getPrice() != price) {
             getLogger().info("Updating price of " + alreadyExistProduct.getName() + " to " + price);
             alreadyExistProduct.setPrice(price);
-            getProductRepository().save(alreadyExistProduct);
         }
+        alreadyExistProduct.setLastScan(LocalDateTime.now());
+        getProductRepository().save(alreadyExistProduct);
     }
 
     default Optional<Category> extractCategory(Element rawCategory) {
