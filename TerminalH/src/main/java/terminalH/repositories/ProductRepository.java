@@ -28,6 +28,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Queryds
 
     @Override
     default void customize(QuerydslBindings bindings, QProduct product) {
-        bindings.bind(product.name).first((name, value) -> name.containsIgnoreCase(value));
+        bindings.bind(product.name).first((name, value) -> name.containsIgnoreCase(value).or(product.brand.name.containsIgnoreCase(value)));
     }
 }
