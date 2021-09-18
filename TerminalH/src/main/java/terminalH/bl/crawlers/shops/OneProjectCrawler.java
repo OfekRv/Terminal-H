@@ -20,9 +20,7 @@ import static terminalH.utils.CrawlerUtils.*;
 public class OneProjectCrawler extends AbstractShopCrawler {
     private static final String SEPARATOR = " ";
     private static final int PRODUCT_COUNT_IDX = 0;
-    private static final int PRICE_IDX = 0;
-    private static final int PAGE_IDX = 1;
-    private static final int GENDER_IDX = 1;
+    private static final int GENDER_IDX = 3;
 
     @Value("${ONEPROJECT_URL}")
     private String oneProjectUrl;
@@ -111,12 +109,12 @@ public class OneProjectCrawler extends AbstractShopCrawler {
 
     @Override
     public Gender extractGender(Element product) {
-        Optional<Element> productCategoriesContainer = Optional.ofNullable(getFirstElementByClass(product, "breadcrumbs"));
+        Optional<Element> productCategoriesContainer = Optional.ofNullable(getFirstElementByClass(product, "breadcrumbs-wrapper"));
         if (!productCategoriesContainer.isPresent()) {
             return null;
         }
 
-        Elements productCategories = getFirstElementByClass(product, "breadcrumbs").select("li");
+        Elements productCategories = getFirstElementByClass(product, "breadcrumb").select("span");
         if (productCategories.size() < GENDER_IDX + 1) {
             return null;
         }
