@@ -6,6 +6,7 @@ import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
 import org.springframework.data.querydsl.binding.QuerydslBindings;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import terminalH.entities.Product;
 import terminalH.entities.QProduct;
 
@@ -24,6 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Queryds
     void deleteByUrl(String url);
 
     @RestResource(exported = false)
+    @Transactional
     void deleteByLastScanBefore(LocalDateTime prevScanTime);
 
     @Override

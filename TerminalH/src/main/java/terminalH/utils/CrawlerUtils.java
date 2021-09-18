@@ -18,10 +18,6 @@ public class CrawlerUtils {
         return con.get();
     }
 
-    public static Document getRequestIgnoringBadStatusCode(String url) throws IOException {
-        return Jsoup.connect(url).ignoreHttpErrors(true).get();
-    }
-
     public static Element getFirstElementByClass(Element e, String className) {
         return e.getElementsByClass(className).first();
     }
