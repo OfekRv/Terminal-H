@@ -14,12 +14,16 @@ public class CrawlerUtils {
     public static String EMPTY = "";
 
     public static Document getRequest(String url) throws IOException {
-        Connection con = Jsoup.connect(url).ignoreContentType(true);
+        Connection con = Jsoup.connect(url).ignoreContentType(true).followRedirects(false);
         return con.get();
     }
 
     public static Element getFirstElementByClass(Element e, String className) {
         return e.getElementsByClass(className).first();
+    }
+
+    public static boolean isElementExistByClass(Element e, String className) {
+        return getFirstElementByClass(e, className) != null;
     }
 
     public static Elements getElementsByClass(Element e, String className) {

@@ -27,7 +27,7 @@ import static terminalH.utils.CrawlerUtils.getRequest;
 public interface ShopCrawler extends Crawler<Shop> {
     default void crawl() throws TerminalHCrawlerException {
         Shop shop = getShopToCrawl();
-        LocalDateTime prevScanTime = shop.getLastScan();
+        Optional<LocalDateTime> prevScanTime = Optional.ofNullable(shop.getLastScan());
         getLogger().info("Crawling shop: " + shop.getName());
         try {
             Document landPage = getRequest(shop.getUrl());
@@ -51,9 +51,11 @@ public interface ShopCrawler extends Crawler<Shop> {
 
         getLogger().info("finished Crawling shop: " + shop.getName());
         updateLastScan(shop);
-        getLogger().info("Cleaning out of stocks of shop: " + shop.getName());
-        getProductRepository().deleteByLastScanBefore(prevScanTime);
-        getLogger().info("Finished cleaning out of stocks of shop: " + shop.getName());
+        if (prevScanTime.isPresent()) {
+            getLogger().info("Cleaning out of stocks of shop: " + shop.getName());
+            getProductRepository().deleteByLastScanBefore(prevScanTime.get());
+            getLogger().info("Finished cleaning out of stocks of shop: " + shop.getName());
+        }
     }
 
     default void crawlCategory(Category category, String categoryUrl, Shop shop) throws TerminalHCrawlerException {
