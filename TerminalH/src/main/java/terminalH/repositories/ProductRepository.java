@@ -22,6 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Queryds
     Product findByUrl(String url);
 
     @RestResource(exported = false)
+    @Transactional
     void deleteByUrl(String url);
 
     @RestResource(exported = false)
