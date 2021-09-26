@@ -25,9 +25,9 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "shopId")
     private Shop shop;
-    @Column(nullable = false, unique = true)
+    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
     private String url;
-    @Column(nullable = true, unique = false)
+    @Column(columnDefinition = "TEXT", nullable = true, unique = false)
     private String pictureUrl;
     @Column(nullable = false, unique = false)
     private String name;

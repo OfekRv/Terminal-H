@@ -6,17 +6,20 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static terminalH.utils.CrawlerUtils.*;
 
 public abstract class Factory54Crawler extends AbstractShopCrawler {
     private static final String NO_DESIGNER = "designer parameter missing";
+    private static final String ALL_PRODUCTS_QUERY = "?sz=10000000";
     private static final String CURRENCY_SEPARATOR = " ";
     private static final String NEW_LINE = "\n";
-    private static final int PRICE_IDX = 0;
+    private static final int PRICE_IDX = 1;
 
     @Value("${FACTORY54_URL}")
     private String factory54Url;
@@ -25,36 +28,47 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
 
     @Override
     public Collection<Element> extractRawCategories(Element landPage) {
-        return getFirstElementByClass(landPage, "nav_container").select("li.level0");
+        Collection<Element> rawCategories = new ArrayList<>();
+        getFirstElementByClass(getFirstElementByClass(landPage, "header-white__no-menu"),
+                "header-white__category-section")
+                .getElementsByClass("header-white__category").
+                stream()
+                .filter(topLevelCategory ->
+                        !ignoreCategories.contains(topLevelCategory.select("a.header-white__category--id").first().text()))
+                .collect(Collectors.toList())
+                .forEach(topLevelCategory ->
+                        rawCategories.addAll(extractSubCategories(topLevelCategory)));
+        return rawCategories;
     }
 
     @Override
     public Optional<Element> extractProductsContainer(Element categoryPage) {
-        return Optional.ofNullable(getFirstElementByClass(categoryPage, "group-product-item"));
+        Optional<Element> rootContainer = Optional.ofNullable(getFirstElementByClass(categoryPage, "col-sm-12 col-md-9"));
+        if (rootContainer.isPresent()) {
+            return Optional.ofNullable(getFirstElementByClass(rootContainer.get(), "product-grid"));
+        }
+        return Optional.empty();
     }
 
     @Override
     public Collection<Element> extractRawProducts(Element productContainer) {
-        return getElementsByClass(productContainer, "col3");
+        return getElementsByClass(productContainer, "present-product product also-like__img");
     }
 
     @Override
     public Optional<String> extractProductUrl(Element product) {
-        Element titleElement = product.select("h2").first();
-        return titleElement.text().toLowerCase().contains(NO_DESIGNER)
-                ? Optional.empty() : Optional.ofNullable(extractUrl(titleElement));
+        return Optional.ofNullable(extractUrl(getFirstElementByClass(product, "link tile-body__product-name")));
     }
 
     @Override
     public String extractProductImageUrl(Element product) {
-        return getFirstElementByClass(product, "lazy-img default")
-                .select("img").first()
-                .absUrl("data-src");
+        return getFirstElementByClass(product, "image-container present-product__image-container")
+                .select("img").first().absUrl("src");
     }
 
     @Override
     public Optional<Float> extractProductPrice(Element product) {
-        Element rawPrice = getFirstElementByClass(product, "price-box");
+        Element rawPrice = getFirstElementByClass(product, "price-inverse");
         if (rawPrice == null) {
             return Optional.empty();
         }
@@ -71,15 +85,26 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
 
     @Override
     public String extractProductName(Element product) {
-        return getFirstElementByClass(product, "showavimobile productHeader")
+        return getFirstElementByClass(product, "link tile-body__product-name")
                 .select("p").text();
     }
 
     @Override
     public String extractDescription(Element product) {
         StringBuilder description = new StringBuilder();
-        getElementsByClass(product, "acc_container").stream()
-                .forEach(desc -> description.append(NEW_LINE + desc.text()));
+
+        Optional<Element> info = Optional.ofNullable(
+                getFirstElementByClass(product, "col-sm-12 col-md-8 col-lg-9 value content no-col card-body is-accordion-box"));
+        Optional<Element> moreDetails = Optional.ofNullable(
+                getFirstElementByClass(product, "col-sm-12 col-md-8 col-lg-9 no-col card-body is-accordion-box no-padding value content"));
+
+        if (info.isPresent()) {
+            description.append(info.get().text());
+        }
+
+        if (moreDetails.isPresent()) {
+            description.append(NEW_LINE + moreDetails.get().text());
+        }
 
         return description.toString();
     }
@@ -91,32 +116,23 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
 
     @Override
     public String extractCategoryName(Element rawCategory) {
-        return rawCategory.select("a.level0").first().text();
+        return rawCategory.select("a").first().text();
     }
 
     @Override
     public String extractCategoryUrl(Element rawCategory) {
-        return extractUrl(rawCategory);
+        return extractUrl(rawCategory) + ALL_PRODUCTS_QUERY;
     }
 
     @Override
     public String extractBrand(Element product) {
-        return getFirstElementByClass(product, "showavimobile productHeader").select("a").text();
+        return getFirstElementByClass(product, "link tile-body__product-name")
+                .select("h2").text();
     }
 
     @Override
     public String getNextPageUrl(Document categoryPage) {
-        String url = null;
-        Optional<Element> pages = Optional.ofNullable(getFirstElementByClass(categoryPage, "pages clearfix"));
-        if (pages.isPresent()) {
-            Optional<Element> rawNextPageLink =
-                    Optional.ofNullable(getFirstElementByClass(pages.get(), "next"));
-            String nextPageUrl = null;
-            if (rawNextPageLink.isPresent()) {
-                url = extractUrl(rawNextPageLink.get());
-            }
-        }
-        return url;
+        return null;
     }
 
     @Override
@@ -129,4 +145,20 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
         return ignoreCategories;
     }
 
+    private Collection<Element> extractSubCategories(Element category) {
+        Collection<Element> midCategries = new ArrayList<>();
+        midCategries = getElementsByClass(category, "header-white__subcategory header-white__subcategory--padding")
+                .stream()
+                .filter(raw -> !ignoreCategories.contains(raw.select("a").first().text()))
+                .collect(Collectors.toList());
+
+        Collection<Element> subCategories = new ArrayList<>();
+        for (Element midCategory : midCategries) {
+            subCategories.addAll(getElementsByClass(midCategory, "dropdown-link dropdown-toggle")
+                    .stream()
+                    .filter(sub -> !ignoreCategories.contains(sub.text()))
+                    .collect(Collectors.toList()));
+        }
+        return subCategories;
+    }
 }
