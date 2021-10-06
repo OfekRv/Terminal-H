@@ -17,6 +17,7 @@ import static terminalH.utils.CrawlerUtils.getFirstElementByClass;
 
 @Named
 public class AfroditaCrawler extends AbstractShopCrawler {
+    private static final String[] NO_EXTRA_PICS = new String[0];
     private static final String CURRENCY_SEPARATOR = " ";
     private static final int PRICE_IDX = 0;
 
@@ -101,6 +102,11 @@ public class AfroditaCrawler extends AbstractShopCrawler {
     @Override
     public Gender extractGender(Element product) {
         return Gender.WOMEN;
+    }
+
+    @Override
+    public String[] extractImagesUrls(Element product) {
+        return NO_EXTRA_PICS;
     }
 
     @Override

@@ -135,6 +135,20 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     }
 
     @Override
+    public String[] extractImagesUrls(Element product) {
+        Elements picContainers = getElementsByClass(product, "product_image_small_item");
+        String[] pics = new String[picContainers.size()];
+        for (int picIdx = 1; picIdx < picContainers.size(); picIdx++) {
+            Optional<String> picUrl = Optional.ofNullable(picContainers.get(picIdx).select("img").attr("src"));
+            if (picUrl.isPresent()) {
+                pics[picIdx] = picUrl.get();
+            }
+        }
+
+        return pics;
+    }
+
+    @Override
     public String getNextPageUrl(Document categoryPage) {
         Elements nextPage = categoryPage.select("a.next-page-link");
 

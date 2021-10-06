@@ -2,6 +2,7 @@ package terminalH.bl.crawlers.shops;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.text.NumberFormat;
@@ -128,6 +129,17 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
     public String extractBrand(Element product) {
         return getFirstElementByClass(product, "link tile-body__product-name")
                 .select("h2").text();
+    }
+
+    @Override
+    public String[] extractImagesUrls(Element product) {
+        Elements picContainers = getElementsByClass(product, "carousel-indicators__list");
+        String[] pics = new String[picContainers.size()];
+        for (int picIdx = 0; picIdx < picContainers.size(); picIdx++) {
+            pics[picIdx] = picContainers.get(picIdx).select("img").attr("src");
+        }
+
+        return pics;
     }
 
     @Override

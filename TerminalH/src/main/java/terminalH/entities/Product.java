@@ -1,14 +1,25 @@
 package terminalH.entities;
 
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import org.springframework.lang.Nullable;
 import terminalH.entities.enums.Gender;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+
+@TypeDefs({
+        @TypeDef(
+                name = "string-array",
+                typeClass = StringArrayType.class
+        )
+})
 
 @Entity
 @Table(name = "trh_products")
@@ -29,6 +40,9 @@ public class Product {
     private String url;
     @Column(columnDefinition = "TEXT", nullable = true, unique = false)
     private String pictureUrl;
+    @Column(columnDefinition = "TEXT[]", nullable = true, unique = false)
+    @Type(type = "string-array")
+    private String[] extraPictureUrls;
     @Column(nullable = false, unique = false)
     private String name;
     @Column(nullable = true, unique = false)
@@ -50,6 +64,7 @@ public class Product {
     public Product(Shop shop,
                    String url,
                    String pictureUrl,
+                   String[] extraPictureUrls,
                    String name,
                    Category category,
                    Brand brand,
@@ -60,6 +75,7 @@ public class Product {
         this.shop = shop;
         this.url = url;
         this.pictureUrl = pictureUrl;
+        this.extraPictureUrls = extraPictureUrls;
         this.name = name;
         this.category = category;
         this.brand = brand;

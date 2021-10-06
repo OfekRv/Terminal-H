@@ -15,6 +15,8 @@ public interface ProductProjection {
 
     String getPictureUrl();
 
+    String[] getExtraPictureUrls();
+
     String getName();
 
     Category getCategory();

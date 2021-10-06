@@ -144,6 +144,17 @@ public class TerminalxCrawler extends AbstractShopCrawler {
     }
 
     @Override
+    public String[] extractImagesUrls(Element product) {
+        Elements picContainers = getElementsByClass(product, "thumb_2ID9");
+        String[] pics = new String[picContainers.size() - 1];
+        for (int picIdx = 0; picIdx < picContainers.size() - 1; picIdx++) {
+            pics[picIdx] = picContainers.get(picIdx).select("img").attr("src");
+        }
+
+        return pics;
+    }
+
+    @Override
     public String getNextPageUrl(Document categoryPage) {
         String currentUrl = categoryPage.location();
         String nextPageUrl;

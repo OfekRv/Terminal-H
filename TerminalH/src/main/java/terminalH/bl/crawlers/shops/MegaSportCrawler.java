@@ -13,11 +13,11 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 
-import static terminalH.utils.CrawlerUtils.extractUrl;
-import static terminalH.utils.CrawlerUtils.getFirstElementByClass;
+import static terminalH.utils.CrawlerUtils.*;
 
 @Named
 public class MegaSportCrawler extends AbstractShopCrawler {
+    private static final String[] NO_EXTRA_PICS = new String[0];
     private static final String CURRENCY_SEPARATOR = " ";
     private static final String GENDER_SEPARATOR = ",";
     private static final int PRICE_IDX = 0;
@@ -135,6 +135,11 @@ public class MegaSportCrawler extends AbstractShopCrawler {
             return Gender.UNISEX;
         }
         return null;
+    }
+
+    @Override
+    public String[] extractImagesUrls(Element product) {
+        return NO_EXTRA_PICS;
     }
 
     @Override

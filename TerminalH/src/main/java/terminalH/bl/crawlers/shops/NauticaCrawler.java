@@ -2,6 +2,7 @@ package terminalH.bl.crawlers.shops;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import terminalH.entities.enums.Gender;
 
@@ -16,6 +17,8 @@ import static terminalH.utils.CrawlerUtils.*;
 
 @Named
 public class NauticaCrawler extends AbstractShopCrawler {
+    private static final String[] NO_EXTRA_PICS = new String[0];
+
     @Value("${NAUTICA_URL}")
     private String nauticaUrl;
     @Value("${NAUTICA_NAME}")
@@ -102,6 +105,11 @@ public class NauticaCrawler extends AbstractShopCrawler {
     @Override
     public Gender extractGender(Element product) {
         return null;
+    }
+
+    @Override
+    public String[] extractImagesUrls(Element product) {
+        return NO_EXTRA_PICS;
     }
 
     @Override
