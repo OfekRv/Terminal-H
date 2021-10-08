@@ -8,11 +8,8 @@ import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,12 +22,14 @@ public class TerminalxCrawler extends AbstractShopCrawler {
     private static final String SEARCH_QUERY = "?p=";
     private static final String SEARCH_QUERY_PATTERN = "\\" + SEARCH_QUERY;
     private static final String CURRENCY_SEPARATOR = " ";
+    private static final String TOTAL_PRODUCTS_SEPARATOR = " ";
     private static final String NO_PRODUCTS_MESSAGE = "There are no products matching the applied filters";
     private static final int FIRST_NEXT_PAGE = 2;
     private static final int PRICE_IDX = 0;
     private static final int GENDER_IDX = 1;
     private static final int CATEGORY_URL_IDX = 0;
     private static final int CURRENT_PAGE_INX = 1;
+    private static final int TOTAL_PRODUCTS_IDX = 0;
 
     @Value("${TERMINALX_URL}")
     private String terminalxUrl;
@@ -162,18 +161,25 @@ public class TerminalxCrawler extends AbstractShopCrawler {
 
     @Override
     public String getNextPageUrl(Document categoryPage) {
+        if (isAllProductsViewed(categoryPage)) {
+            return null;
+        }
+
         String currentUrl = categoryPage.location();
         String nextPageUrl;
         if (!currentUrl.contains(SEARCH_QUERY)) {
             nextPageUrl = currentUrl + SEARCH_QUERY + FIRST_NEXT_PAGE;
         } else {
             String[] urlParts = currentUrl.split(SEARCH_QUERY_PATTERN);
-            nextPageUrl = urlParts[CATEGORY_URL_IDX] + SEARCH_QUERY + (Integer.parseInt(urlParts[CURRENT_PAGE_INX]) + 1);
+            nextPageUrl =
+                    urlParts[CATEGORY_URL_IDX] + SEARCH_QUERY + (Integer.parseInt(urlParts[CURRENT_PAGE_INX]) + 1);
         }
 
         try {
             Document nextPage = getRequest(nextPageUrl, IGNORE_REDIRECTS);
-            Optional<Element> noProductsElement = Optional.ofNullable(getFirstElementByClass(nextPage, "info_dzi3 toast_hN0l rtl_1l4_ full-width_p5rD"));
+            Optional<Element> noProductsElement =
+                    Optional.ofNullable(
+                            getFirstElementByClass(nextPage, "info_dzi3 toast_hN0l rtl_1l4_ full-width_p5rD"));
             if (noProductsElement.isPresent() && noProductsElement.get().text().equals(NO_PRODUCTS_MESSAGE)) {
                 return null;
             }
@@ -218,5 +224,23 @@ public class TerminalxCrawler extends AbstractShopCrawler {
         price = price.split(CURRENCY_SEPARATOR)[PRICE_IDX];
 
         return parsePrice(price);
+    }
+
+    private boolean isAllProductsViewed(Document categoryPage) {
+        Optional<Element> totalProductsContainer =
+                Optional.ofNullable(categoryPage.select("span[data-test=search-totals]").first());
+        Optional<Element> viewedProductsContainer =
+                Optional.ofNullable(getFirstElementByClass(categoryPage, "listing-previous-viewed_2Nou"));
+
+        if (!(totalProductsContainer.isPresent() && viewedProductsContainer.isPresent())) {
+            return false;
+        }
+
+        int totalProducts = Integer.parseInt(totalProductsContainer.get().text());
+        int viewedProducts = Integer.parseInt(viewedProductsContainer.get().text().
+                split(TOTAL_PRODUCTS_SEPARATOR)[TOTAL_PRODUCTS_IDX]);
+
+        // for some reason it is possible for TerminalX to write that there are more viewed products than total products
+        return viewedProducts >= totalProducts;
     }
 }

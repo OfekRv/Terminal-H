@@ -66,6 +66,7 @@ public interface ShopCrawler extends Crawler<Shop> {
         Document pageOfCategory;
         do {
             try {
+                getLogger().info("Crawling Category page: " + url.get());
                 pageOfCategory = getRequest(url.get(), FOLLOW_REDIRECTS);
             } catch (IOException e) {
                 throw new TerminalHCrawlerException("Could not get category or page html", e);
