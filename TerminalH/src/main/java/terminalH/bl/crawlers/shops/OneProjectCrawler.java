@@ -68,13 +68,28 @@ public class OneProjectCrawler extends AbstractShopCrawler {
         }
 
         String price = rawPrice.get().attr("data-price");
+        return parsePrice(price);
+    }
+
+    @Override
+    public Optional<Float> extractOriginalProductPrice(Element product) {
+        Optional<Element> rawPrice =
+                Optional.ofNullable(getFirstElementByClass(product, "product_price_old"));
+        if (!rawPrice.isPresent()) {
+            return Optional.empty();
+        }
+
+        String price = rawPrice.get().removeClass("shekel").text();
+        return parsePrice(price);
+    }
+
+    private Optional<Float> parsePrice(String price) {
         try {
             return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
         } catch (ParseException e) {
             getLogger().warn("Could not extract price");
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     @Override
@@ -135,7 +150,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String[] extractImagesUrls(Element product) {
+    public String[] extractExtraPictureUrls(Element product) {
         Elements picContainers = getElementsByClass(product, "product_image_small_item");
         String[] pics = new String[picContainers.size() - 1];
         for (int picIdx = 0; picIdx < picContainers.size() - 1; picIdx++) {

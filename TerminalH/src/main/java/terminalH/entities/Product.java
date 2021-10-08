@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import terminalH.entities.enums.Gender;
 
@@ -58,6 +60,10 @@ public class Product {
     private String description;
     @Column(nullable = false, unique = false)
     private float price;
+    @Column(nullable = false, unique = false)
+    private float originalPrice;
+    @Formula("(original_Price - price) / original_Price * 100")
+    private float discount;
     @Column(nullable = true, unique = false)
     private LocalDateTime lastScan;
 
@@ -71,6 +77,7 @@ public class Product {
                    Gender gender,
                    String description,
                    float price,
+                   float originalPrice,
                    LocalDateTime lastScan) {
         this.shop = shop;
         this.url = url;
@@ -82,6 +89,7 @@ public class Product {
         this.gender = gender;
         this.description = description;
         this.price = price;
+        this.originalPrice = originalPrice;
         this.lastScan = lastScan;
     }
 }

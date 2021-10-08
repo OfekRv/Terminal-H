@@ -62,14 +62,21 @@ public class NauticaCrawler extends AbstractShopCrawler {
             return Optional.empty();
         }
 
-        String price = getElementsByClass(rawPrices.get(), "price-container price-final_price tax weee").last().attr("data-price-amount");
-        try {
-            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
+        String price = getElementsByClass(rawPrices.get(), "price-container price-final_price tax weee")
+                .last().attr("data-price-amount");
+        return parsePrice(price);
+    }
+
+    @Override
+    public Optional<Float> extractOriginalProductPrice(Element product) {
+        Optional<Element> priceContainer =
+                Optional.ofNullable(getFirstElementByClass(product, "old-price-200830"));
+        if (!priceContainer.isPresent()) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        String price = priceContainer.get().attr("data-price-amount");
+        return parsePrice(price);
     }
 
     @Override
@@ -108,7 +115,7 @@ public class NauticaCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String[] extractImagesUrls(Element product) {
+    public String[] extractExtraPictureUrls(Element product) {
         return NO_EXTRA_PICS;
     }
 
@@ -130,5 +137,14 @@ public class NauticaCrawler extends AbstractShopCrawler {
     @Override
     public Collection<String> getIgnoredCategories() {
         return ignoreCategories;
+    }
+
+    private Optional<Float> parsePrice(String price) {
+        try {
+            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
+        } catch (ParseException e) {
+            getLogger().warn("Could not extract price");
+            return Optional.empty();
+        }
     }
 }

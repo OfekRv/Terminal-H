@@ -68,6 +68,11 @@ public class AfroditaCrawler extends AbstractShopCrawler {
     }
 
     @Override
+    public Optional<Float> extractOriginalProductPrice(Element product) {
+        return null;
+    }
+
+    @Override
     public String extractProductName(Element product) {
         return product.select("h1").text();
     }
@@ -105,7 +110,7 @@ public class AfroditaCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String[] extractImagesUrls(Element product) {
+    public String[] extractExtraPictureUrls(Element product) {
         return NO_EXTRA_PICS;
     }
 

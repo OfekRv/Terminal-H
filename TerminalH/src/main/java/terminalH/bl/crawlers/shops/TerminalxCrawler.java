@@ -20,6 +20,7 @@ import static terminalH.utils.CrawlerUtils.*;
 
 @Named
 public class TerminalxCrawler extends AbstractShopCrawler {
+    private static final String[] NO_EXTRA_PICS = new String[0];
     private static final String SEARCH_QUERY = "?p=";
     private static final String SEARCH_QUERY_PATTERN = "\\" + SEARCH_QUERY;
     private static final String CURRENCY_SEPARATOR = " ";
@@ -71,21 +72,20 @@ public class TerminalxCrawler extends AbstractShopCrawler {
 
     @Override
     public String extractProductImageUrl(Element product) {
-        return getFirstElementByClass(product, "image-div_3hfI")
-                .select("img").first()
-                .absUrl("src");
+        Optional<Element> optionalPic = Optional.ofNullable(getFirstElementByClass(product, "image-div_3hfI"));
+
+        return optionalPic.isPresent() ?
+                optionalPic.get().select("img").first().absUrl("src") : null;
     }
 
     @Override
     public Optional<Float> extractProductPrice(Element product) {
-        String price = getFirstElementByClass(product, "row_2tcG bold_2wBM prices-final_1R9x").text();
-        price = price.split(CURRENCY_SEPARATOR)[PRICE_IDX];
-        try {
-            return Optional.ofNullable(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
-        }
-        return Optional.empty();
+        return extractPriceFromElement(product, "row_2tcG bold_2wBM prices-final_1R9x");
+    }
+
+    @Override
+    public Optional<Float> extractOriginalProductPrice(Element product) {
+        return extractPriceFromElement(product, "row_2tcG strikethrough_t2Ab prices-regular_yum0");
     }
 
     @Override
@@ -144,8 +144,13 @@ public class TerminalxCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String[] extractImagesUrls(Element product) {
+    public String[] extractExtraPictureUrls(Element product) {
         Elements picContainers = getElementsByClass(product, "thumb_2ID9");
+
+        if (picContainers.isEmpty()) {
+            return NO_EXTRA_PICS;
+        }
+
         String[] pics = new String[picContainers.size() - 1];
         for (int picIdx = 0; picIdx < picContainers.size() - 1; picIdx++) {
             pics[picIdx] = picContainers.get(picIdx).select("img").attr("src");
@@ -200,5 +205,21 @@ public class TerminalxCrawler extends AbstractShopCrawler {
                 .map(raw -> raw.select("a").first())
                 .filter(raw -> !ignoreCategories.contains(raw.text()))
                 .collect(Collectors.toList());
+    }
+
+    private Optional<Float> extractPriceFromElement(Element element, String classQuery) {
+        Optional<Element> priceElement = Optional.ofNullable(getFirstElementByClass(element, classQuery));
+        if (!priceElement.isPresent()) {
+            return Optional.empty();
+        }
+
+        String price = priceElement.get().text();
+        price = price.split(CURRENCY_SEPARATOR)[PRICE_IDX];
+        try {
+            return Optional.ofNullable(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
+        } catch (ParseException e) {
+            getLogger().warn("Could not extract price");
+        }
+        return Optional.empty();
     }
 }

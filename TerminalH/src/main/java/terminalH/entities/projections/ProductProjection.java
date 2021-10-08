@@ -31,4 +31,8 @@ public interface ProductProjection {
     String getDescription();
 
     float getPrice();
+
+    float getOriginalPrice();
+
+    float getDiscount();
 }

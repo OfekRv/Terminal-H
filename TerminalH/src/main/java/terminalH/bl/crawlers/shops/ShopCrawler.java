@@ -116,10 +116,12 @@ public interface ShopCrawler extends Crawler<Shop> {
         Brand brand = getBrandRepository().findByName(brandName).
                 orElseGet(() -> getBrandRepository().save(new Brand(brandName)));
         Gender gender = extractGender(productPage);
-        String[] extraPics = extractImagesUrls(productPage);
+        String[] extraPics = extractExtraPictureUrls(productPage);
+        Optional<Float> optionalOriginalPrice = extractOriginalProductPrice(productPage);
+        float originalPrice = optionalOriginalPrice.isPresent() ? optionalOriginalPrice.get() : price;
         getLogger().info("Saving product (" + name + "): " + productUrl);
         getProductRepository().save(
-                new Product(shop, productUrl, picUrl, extraPics, name, category, brand, gender, description, price, LocalDateTime.now()));
+                new Product(shop, productUrl, picUrl, extraPics, name, category, brand, gender, description, price, originalPrice, LocalDateTime.now()));
     }
 
     @Transactional
@@ -167,6 +169,8 @@ public interface ShopCrawler extends Crawler<Shop> {
 
     Optional<Float> extractProductPrice(Element product);
 
+    Optional<Float> extractOriginalProductPrice(Element product);
+
     String extractProductName(Element product);
 
     String extractDescription(Element product);
@@ -181,7 +185,7 @@ public interface ShopCrawler extends Crawler<Shop> {
 
     Gender extractGender(Element product);
 
-    String[] extractImagesUrls(Element product);
+    String[] extractExtraPictureUrls(Element product);
 
     String getNextPageUrl(Document categoryPage);
 

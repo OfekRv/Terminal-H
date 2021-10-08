@@ -13,7 +13,8 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 
-import static terminalH.utils.CrawlerUtils.*;
+import static terminalH.utils.CrawlerUtils.extractUrl;
+import static terminalH.utils.CrawlerUtils.getFirstElementByClass;
 
 @Named
 public class MegaSportCrawler extends AbstractShopCrawler {
@@ -62,19 +63,12 @@ public class MegaSportCrawler extends AbstractShopCrawler {
 
     @Override
     public Optional<Float> extractProductPrice(Element product) {
-        Element rawPrice = getFirstElementByClass(product, "price ar_finalPrice");
-        if (rawPrice == null) {
-            return Optional.empty();
-        }
+        return extractPriceFromElement(product, "price ar_finalPrice");
+    }
 
-        String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
-        try {
-            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
-        }
-
-        return Optional.empty();
+    @Override
+    public Optional<Float> extractOriginalProductPrice(Element product) {
+        return extractPriceFromElement(product, "old-price sly-old-price");
     }
 
     @Override
@@ -138,7 +132,7 @@ public class MegaSportCrawler extends AbstractShopCrawler {
     }
 
     @Override
-    public String[] extractImagesUrls(Element product) {
+    public String[] extractExtraPictureUrls(Element product) {
         return NO_EXTRA_PICS;
     }
 
@@ -172,5 +166,21 @@ public class MegaSportCrawler extends AbstractShopCrawler {
     @Override
     public Collection<String> getIgnoredCategories() {
         return ignoreCategories;
+    }
+
+    private Optional<Float> extractPriceFromElement(Element element, String classQuery) {
+        Optional<Element> rawPrice = Optional.ofNullable(getFirstElementByClass(element, classQuery));
+        if (!rawPrice.isPresent()) {
+            return Optional.empty();
+        }
+
+        String price = rawPrice.get().text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
+        try {
+            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
+        } catch (ParseException e) {
+            getLogger().warn("Could not extract price");
+        }
+
+        return Optional.empty();
     }
 }

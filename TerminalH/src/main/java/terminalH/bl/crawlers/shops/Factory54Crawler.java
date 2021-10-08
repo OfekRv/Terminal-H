@@ -85,9 +85,13 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
     }
 
     @Override
+    public Optional<Float> extractOriginalProductPrice(Element product) {
+        return Optional.empty();
+    }
+
+    @Override
     public String extractProductName(Element product) {
-        return getFirstElementByClass(product, "link tile-body__product-name")
-                .select("p").text();
+        return getFirstElementByClass(product, "product-name name-product__product ").text();
     }
 
     @Override
@@ -127,12 +131,11 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
 
     @Override
     public String extractBrand(Element product) {
-        return getFirstElementByClass(product, "link tile-body__product-name")
-                .select("h2").text();
+        return getFirstElementByClass(product, "product-name name-product__brand ").text();
     }
 
     @Override
-    public String[] extractImagesUrls(Element product) {
+    public String[] extractExtraPictureUrls(Element product) {
         Elements picContainers = getElementsByClass(product, "carousel-indicators__list");
         String[] pics = new String[picContainers.size()];
         for (int picIdx = 0; picIdx < picContainers.size(); picIdx++) {
