@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static java.lang.Boolean.parseBoolean;
 import static terminalH.utils.CrawlerUtils.*;
+import static terminalH.utils.CurrencyUtils.parsePrice;
 
 @Named
 public class OneProjectCrawler extends AbstractShopCrawler {
@@ -81,15 +82,6 @@ public class OneProjectCrawler extends AbstractShopCrawler {
 
         String price = rawPrice.get().removeClass("shekel").text();
         return parsePrice(price);
-    }
-
-    private Optional<Float> parsePrice(String price) {
-        try {
-            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
-            return Optional.empty();
-        }
     }
 
     @Override

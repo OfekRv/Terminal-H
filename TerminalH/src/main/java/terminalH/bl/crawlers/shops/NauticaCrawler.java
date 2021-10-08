@@ -7,17 +7,21 @@ import org.springframework.beans.factory.annotation.Value;
 import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
-import java.text.NumberFormat;
-import java.text.ParseException;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Locale;
+import java.util.Collections;
 import java.util.Optional;
 
 import static terminalH.utils.CrawlerUtils.*;
+import static terminalH.utils.CurrencyUtils.parsePrice;
 
 @Named
 public class NauticaCrawler extends AbstractShopCrawler {
     private static final String[] NO_EXTRA_PICS = new String[0];
+    private static final int FIRST_PRICE_IDX = 0;
+    private static final int ORIGINAL_PRICE_IDX = 0;
+    private static final int PRICE_IDX = 1;
 
     @Value("${NAUTICA_URL}")
     private String nauticaUrl;
@@ -28,7 +32,26 @@ public class NauticaCrawler extends AbstractShopCrawler {
 
     @Override
     public Collection<Element> extractRawCategories(Element landPage) {
-        return getElementsByClass(landPage, "level0 submenu ui-menu ui-widget ui-widget-content ui-corner-all");
+        Elements parentCategories =
+                getFirstElementByClass(landPage, "footer-sections")
+                        .select("ul").first().select("li");
+
+        Collection<Element> categories = new ArrayList<>();
+        for (Element parentCategory : parentCategories) {
+            categories.addAll(extractRawCategoriesFromParent(parentCategory));
+        }
+
+        return categories;
+    }
+
+    private Collection<Element> extractRawCategoriesFromParent(Element parentCategory) {
+        try {
+            Document categoriesContainer = getRequest(extractUrl(parentCategory), FOLLOW_REDIRECTS);
+            return getFirstElementByClass(categoriesContainer, "o-list").select("li.level1");
+        } catch (IOException e) {
+            getLogger().warn("Could not extract categories");
+        }
+        return Collections.EMPTY_LIST;
     }
 
     @Override
@@ -56,27 +79,12 @@ public class NauticaCrawler extends AbstractShopCrawler {
 
     @Override
     public Optional<Float> extractProductPrice(Element product) {
-        Optional<Element> rawPrices =
-                Optional.ofNullable(getFirstElementByClass(product, "price-box price-final_price"));
-        if (!rawPrices.isPresent()) {
-            return Optional.empty();
-        }
-
-        String price = getElementsByClass(rawPrices.get(), "price-container price-final_price tax weee")
-                .last().attr("data-price-amount");
-        return parsePrice(price);
+        return extractPriceByIndex(product, PRICE_IDX);
     }
 
     @Override
     public Optional<Float> extractOriginalProductPrice(Element product) {
-        Optional<Element> priceContainer =
-                Optional.ofNullable(getFirstElementByClass(product, "old-price-200830"));
-        if (!priceContainer.isPresent()) {
-            return Optional.empty();
-        }
-
-        String price = priceContainer.get().attr("data-price-amount");
-        return parsePrice(price);
+        return extractPriceByIndex(product, ORIGINAL_PRICE_IDX);
     }
 
     @Override
@@ -86,7 +94,13 @@ public class NauticaCrawler extends AbstractShopCrawler {
 
     @Override
     public String extractDescription(Element product) {
-        return getFirstElementByClass(product, "product attribute features").text();
+        Optional<Element> descriptionContainer = Optional.ofNullable(
+                getFirstElementByClass(product, "product attribute features"));
+        if (!descriptionContainer.isPresent()) {
+            return EMPTY;
+        }
+
+        return descriptionContainer.get().text();
     }
 
     @Override
@@ -139,12 +153,24 @@ public class NauticaCrawler extends AbstractShopCrawler {
         return ignoreCategories;
     }
 
-    private Optional<Float> parsePrice(String price) {
-        try {
-            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
+    private Optional<Float> extractPriceByIndex(Element product, int priceIdx) {
+        Optional<Element> rawPrices =
+                Optional.ofNullable(getFirstElementByClass(product, "price-box price-final_price"));
+        if (!rawPrices.isPresent()) {
             return Optional.empty();
         }
+
+        Elements priceContainer =
+                getElementsByClass(rawPrices.get(), "price-container price-final_price tax weee");
+        if (priceContainer.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (priceContainer.size() == 1) {
+            priceIdx = FIRST_PRICE_IDX;
+        }
+
+        String price = getFirstElementByClass(priceContainer.get(priceIdx), "price").text();
+        return parsePrice(price);
     }
 }

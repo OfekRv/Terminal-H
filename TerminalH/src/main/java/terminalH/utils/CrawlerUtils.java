@@ -13,8 +13,8 @@ import java.io.IOException;
 public class CrawlerUtils {
     public static String EMPTY = "";
 
-    public static Document getRequest(String url) throws IOException {
-        Connection con = Jsoup.connect(url).ignoreContentType(true).followRedirects(false);
+    public static Document getRequest(String url, boolean followRedirects) throws IOException {
+        Connection con = Jsoup.connect(url).ignoreContentType(true).followRedirects(followRedirects);
         return con.get();
     }
 

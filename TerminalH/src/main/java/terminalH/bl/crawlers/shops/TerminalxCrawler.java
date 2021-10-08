@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static terminalH.utils.CrawlerUtils.*;
+import static terminalH.utils.CurrencyUtils.parsePrice;
 
 @Named
 public class TerminalxCrawler extends AbstractShopCrawler {
@@ -171,7 +172,7 @@ public class TerminalxCrawler extends AbstractShopCrawler {
         }
 
         try {
-            Document nextPage = getRequest(nextPageUrl);
+            Document nextPage = getRequest(nextPageUrl, IGNORE_REDIRECTS);
             Optional<Element> noProductsElement = Optional.ofNullable(getFirstElementByClass(nextPage, "info_dzi3 toast_hN0l rtl_1l4_ full-width_p5rD"));
             if (noProductsElement.isPresent() && noProductsElement.get().text().equals(NO_PRODUCTS_MESSAGE)) {
                 return null;
@@ -215,11 +216,7 @@ public class TerminalxCrawler extends AbstractShopCrawler {
 
         String price = priceElement.get().text();
         price = price.split(CURRENCY_SEPARATOR)[PRICE_IDX];
-        try {
-            return Optional.ofNullable(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
-        }
-        return Optional.empty();
+
+        return parsePrice(price);
     }
 }

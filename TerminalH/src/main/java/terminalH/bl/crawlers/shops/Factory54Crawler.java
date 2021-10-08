@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static terminalH.utils.CrawlerUtils.*;
+import static terminalH.utils.CurrencyUtils.parsePrice;
 
 public abstract class Factory54Crawler extends AbstractShopCrawler {
     private static final String NO_DESIGNER = "designer parameter missing";
@@ -75,13 +76,7 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
         }
 
         String price = rawPrice.text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
-        try {
-            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
-        }
-
-        return Optional.empty();
+        return parsePrice(price);
     }
 
     @Override

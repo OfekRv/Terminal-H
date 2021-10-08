@@ -25,12 +25,15 @@ import java.util.Optional;
 import static terminalH.utils.CrawlerUtils.getRequest;
 
 public interface ShopCrawler extends Crawler<Shop> {
+    boolean IGNORE_REDIRECTS = false;
+    boolean FOLLOW_REDIRECTS = true;
+
     default void crawl() throws TerminalHCrawlerException {
         Shop shop = getShopToCrawl();
         Optional<LocalDateTime> prevScanTime = Optional.ofNullable(shop.getLastScan());
         getLogger().info("Crawling shop: " + shop.getName());
         try {
-            Document landPage = getRequest(shop.getUrl());
+            Document landPage = getRequest(shop.getUrl(), IGNORE_REDIRECTS);
             Collection<Element> categories = extractRawCategories(landPage);
             categories.stream().
                     forEach(rawCategory -> {
@@ -63,7 +66,7 @@ public interface ShopCrawler extends Crawler<Shop> {
         Document pageOfCategory;
         do {
             try {
-                pageOfCategory = getRequest(url.get());
+                pageOfCategory = getRequest(url.get(), FOLLOW_REDIRECTS);
             } catch (IOException e) {
                 throw new TerminalHCrawlerException("Could not get category or page html", e);
             }
@@ -87,7 +90,7 @@ public interface ShopCrawler extends Crawler<Shop> {
             Optional<Float> price = Optional.empty();
 
             try {
-                productPage = getRequest(productUrl.get());
+                productPage = getRequest(productUrl.get(), IGNORE_REDIRECTS);
                 price = extractProductPrice(productPage);
             } catch (IOException e) {
                 getLogger().error("Error while trying to crawl product: " + productUrl, e);
@@ -95,7 +98,7 @@ public interface ShopCrawler extends Crawler<Shop> {
 
             if (price.isPresent()) {
                 if (!isInStock(productPage)) {
-                    getLogger().info("Deleting product out of stock: " + productUrl);
+                    getLogger().info("Deleting product out of stock: " + productUrl.get());
                     getProductRepository().deleteByUrl(productUrl.get());
                 } else {
                     if (getProductRepository().existsByUrl(productUrl.get())) {

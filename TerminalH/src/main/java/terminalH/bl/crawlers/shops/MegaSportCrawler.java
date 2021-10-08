@@ -7,14 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Optional;
 
 import static terminalH.utils.CrawlerUtils.extractUrl;
 import static terminalH.utils.CrawlerUtils.getFirstElementByClass;
+import static terminalH.utils.CurrencyUtils.parsePrice;
 
 @Named
 public class MegaSportCrawler extends AbstractShopCrawler {
@@ -57,8 +55,7 @@ public class MegaSportCrawler extends AbstractShopCrawler {
     @Override
     public String extractProductImageUrl(Element product) {
         return getFirstElementByClass(product, "product-image-photo")
-                .select("img").first()
-                .absUrl("src");
+                .select("img").first().absUrl("src");
     }
 
     @Override
@@ -175,12 +172,6 @@ public class MegaSportCrawler extends AbstractShopCrawler {
         }
 
         String price = rawPrice.get().text().split(CURRENCY_SEPARATOR)[PRICE_IDX];
-        try {
-            return Optional.of(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
-        }
-
-        return Optional.empty();
+        return parsePrice(price);
     }
 }

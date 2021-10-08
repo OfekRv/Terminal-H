@@ -6,14 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Optional;
 
 import static terminalH.utils.CrawlerUtils.extractUrl;
 import static terminalH.utils.CrawlerUtils.getFirstElementByClass;
+import static terminalH.utils.CurrencyUtils.parsePrice;
 
 @Named
 public class AfroditaCrawler extends AbstractShopCrawler {
@@ -59,17 +57,12 @@ public class AfroditaCrawler extends AbstractShopCrawler {
     public Optional<Float> extractProductPrice(Element product) {
         String price = product.select("span.price").first().text();
         price = price.split(CURRENCY_SEPARATOR)[PRICE_IDX];
-        try {
-            return Optional.ofNullable(NumberFormat.getInstance(Locale.getDefault()).parse(price).floatValue());
-        } catch (ParseException e) {
-            getLogger().warn("Could not extract price");
-        }
-        return Optional.empty();
+        return parsePrice(price);
     }
 
     @Override
     public Optional<Float> extractOriginalProductPrice(Element product) {
-        return null;
+        return Optional.empty();
     }
 
     @Override
