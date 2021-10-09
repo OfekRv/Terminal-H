@@ -15,4 +15,8 @@ public class CurrencyUtils {
             return Optional.empty();
         }
     }
+
+    public static String removeCurrencySymbol(String price) {
+        return price.replace("₪", "");
+    }
 }

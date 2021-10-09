@@ -7,15 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import terminalH.entities.enums.Gender;
 
 import javax.inject.Named;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Optional;
 
 import static java.lang.Boolean.parseBoolean;
 import static terminalH.utils.CrawlerUtils.*;
 import static terminalH.utils.CurrencyUtils.parsePrice;
+import static terminalH.utils.CurrencyUtils.removeCurrencySymbol;
 
 @Named
 public class OneProjectCrawler extends AbstractShopCrawler {
@@ -80,7 +78,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
             return Optional.empty();
         }
 
-        String price = rawPrice.get().removeClass("shekel").text();
+        String price = removeCurrencySymbol(rawPrice.get().text());
         return parsePrice(price);
     }
 
