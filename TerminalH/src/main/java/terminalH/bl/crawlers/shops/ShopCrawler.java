@@ -94,7 +94,7 @@ public interface ShopCrawler extends Crawler<Shop> {
                 productPage = getRequest(productUrl.get(), IGNORE_REDIRECTS);
                 price = extractProductPrice(productPage);
             } catch (IOException e) {
-                getLogger().error("Error while trying to crawl product: " + productUrl, e);
+                getLogger().error("Error while trying to crawl product: " + productUrl.get(), e);
             }
 
             if (price.isPresent()) {

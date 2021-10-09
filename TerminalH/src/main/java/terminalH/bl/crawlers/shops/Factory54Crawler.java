@@ -5,11 +5,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -59,7 +56,10 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
 
     @Override
     public Optional<String> extractProductUrl(Element product) {
-        return Optional.ofNullable(extractUrl(getFirstElementByClass(product, "link tile-body__product-name")));
+        Optional<Element> productUrlContainer =
+                Optional.ofNullable(getFirstElementByClass(product, "link tile-body__product-name"));
+        return productUrlContainer.isPresent() ?
+                Optional.of(extractUrl(productUrlContainer.get())) : Optional.empty();
     }
 
     @Override
