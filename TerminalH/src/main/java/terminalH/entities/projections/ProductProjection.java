@@ -28,6 +28,8 @@ public interface ProductProjection {
 
     Gender getGender();
 
+    String[] getSizes();
+
     String getDescription();
 
     float getPrice();

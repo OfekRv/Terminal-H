@@ -123,9 +123,10 @@ public interface ShopCrawler extends Crawler<Shop> {
         String[] extraPics = extractExtraPictureUrls(productPage);
         Optional<Float> optionalOriginalPrice = extractOriginalProductPrice(productPage);
         float originalPrice = optionalOriginalPrice.isPresent() ? optionalOriginalPrice.get() : price;
+        String[] sizes = extractSizes(productPage);
         getLogger().info("Saving product (" + name + "): " + productUrl);
         getProductRepository().save(
-                new Product(shop, productUrl, picUrl, extraPics, name, category, brand, gender, description, price, originalPrice, LocalDateTime.now()));
+                new Product(shop, productUrl, picUrl, extraPics, name, category, brand, gender, description, price, originalPrice, sizes, LocalDateTime.now()));
     }
 
     @Transactional
@@ -190,6 +191,8 @@ public interface ShopCrawler extends Crawler<Shop> {
     Gender extractGender(Element product);
 
     String[] extractExtraPictureUrls(Element product);
+
+    String[] extractSizes(Document productPage);
 
     String getNextPageUrl(Document categoryPage);
 

@@ -6,6 +6,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import static terminalH.utils.CrawlerUtils.*;
 import static terminalH.utils.CurrencyUtils.parsePrice;
 
 public abstract class Factory54Crawler extends AbstractShopCrawler {
+    private static final String[] NO_SIZES = new String[0];
     private static final String NO_DESIGNER = "designer parameter missing";
     private static final String ALL_PRODUCTS_QUERY = "?sz=10000000";
     private static final String CURRENCY_SEPARATOR = " ";
@@ -138,6 +140,21 @@ public abstract class Factory54Crawler extends AbstractShopCrawler {
         }
 
         return pics;
+    }
+
+    @Override
+    public String[] extractSizes(Document productPage) {
+        Optional<Element> sizes =
+                Optional.ofNullable(getFirstElementByClass(productPage, "custom-select select-variant options-select form-control select-f54ProductSize"));
+
+        if (!sizes.isPresent())
+        {
+            return NO_SIZES;
+        }
+
+        return sizes.get().select("option[data-attr-value]:not(.disabled)")
+                .stream().map(sizeContainer -> sizeContainer.text())
+                .toArray(String[]::new);
     }
 
     @Override

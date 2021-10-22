@@ -17,6 +17,7 @@ import static terminalH.utils.CurrencyUtils.parsePrice;
 @Named
 public class MegaSportCrawler extends AbstractShopCrawler {
     private static final String[] NO_EXTRA_PICS = new String[0];
+    private static final String[] NO_SIZES = new String[0];
     private static final String CURRENCY_SEPARATOR = " ";
     private static final String GENDER_SEPARATOR = ",";
     private static final int PRICE_IDX = 0;
@@ -131,6 +132,11 @@ public class MegaSportCrawler extends AbstractShopCrawler {
     @Override
     public String[] extractExtraPictureUrls(Element product) {
         return NO_EXTRA_PICS;
+    }
+
+    @Override
+    public String[] extractSizes(Document productPage) {
+        return NO_SIZES;
     }
 
     @Override

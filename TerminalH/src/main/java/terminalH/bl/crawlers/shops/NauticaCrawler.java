@@ -19,6 +19,7 @@ import static terminalH.utils.CurrencyUtils.parsePrice;
 @Named
 public class NauticaCrawler extends AbstractShopCrawler {
     private static final String[] NO_EXTRA_PICS = new String[0];
+    private static final String[] NO_SIZES = new String[0];
     private static final int FIRST_PRICE_IDX = 0;
     private static final int ORIGINAL_PRICE_IDX = 0;
     private static final int PRICE_IDX = 1;
@@ -131,6 +132,11 @@ public class NauticaCrawler extends AbstractShopCrawler {
     @Override
     public String[] extractExtraPictureUrls(Element product) {
         return NO_EXTRA_PICS;
+    }
+
+    @Override
+    public String[] extractSizes(Document productPage) {
+        return NO_SIZES;
     }
 
     @Override

@@ -17,6 +17,7 @@ import static terminalH.utils.CurrencyUtils.removeCurrencySymbol;
 
 @Named
 public class OneProjectCrawler extends AbstractShopCrawler {
+    private static final String[] NO_SIZES = new String[0];
     private static final String SEPARATOR = " ";
     private static final int PRODUCT_COUNT_IDX = 0;
     private static final int GENDER_IDX = 3;
@@ -151,6 +152,20 @@ public class OneProjectCrawler extends AbstractShopCrawler {
         }
 
         return pics;
+    }
+
+    @Override
+    public String[] extractSizes(Document productPage) {
+        Optional<Element> sizes =
+                Optional.ofNullable(getFirstElementByClass(productPage, "product_info_size_select_options"));
+
+        if (!sizes.isPresent()) {
+            return NO_SIZES;
+        }
+
+        return sizes.get().select("span")
+                .stream().map(sizeContainer -> sizeContainer.text())
+                .toArray(String[]::new);
     }
 
     @Override

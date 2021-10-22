@@ -9,7 +9,6 @@ import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import terminalH.entities.enums.Gender;
 
@@ -64,6 +63,9 @@ public class Product {
     private float originalPrice;
     @Formula("(original_Price - price) / original_Price * 100")
     private float discount;
+    @Column(columnDefinition = "TEXT[]", nullable = true, unique = false)
+    @Type(type = "string-array")
+    private String[] sizes;
     @Column(nullable = true, unique = false)
     private LocalDateTime lastScan;
 
@@ -78,6 +80,7 @@ public class Product {
                    String description,
                    float price,
                    float originalPrice,
+                   String[] sizes,
                    LocalDateTime lastScan) {
         this.shop = shop;
         this.url = url;
@@ -90,6 +93,7 @@ public class Product {
         this.description = description;
         this.price = price;
         this.originalPrice = originalPrice;
+        this.sizes = sizes;
         this.lastScan = lastScan;
     }
 }

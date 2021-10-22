@@ -18,6 +18,7 @@ import static terminalH.utils.CurrencyUtils.parsePrice;
 
 @Named
 public class TerminalxCrawler extends AbstractShopCrawler {
+    private static final String[] NO_SIZES = new String[0];
     private static final String[] NO_EXTRA_PICS = new String[0];
     private static final String SEARCH_QUERY = "?p=";
     private static final String SEARCH_QUERY_PATTERN = "\\" + SEARCH_QUERY;
@@ -157,6 +158,20 @@ public class TerminalxCrawler extends AbstractShopCrawler {
         }
 
         return pics;
+    }
+
+    @Override
+    public String[] extractSizes(Document productPage) {
+        Optional<Element> sizes =
+                Optional.ofNullable(getFirstElementByClass(productPage, "size_1bXM"));
+
+        if (!sizes.isPresent()) {
+            return NO_SIZES;
+        }
+
+        return sizes.get().children().select("div:not(.not-available_3iVZ)")
+                .stream().map(sizeContainer -> sizeContainer.text())
+                .toArray(String[]::new);
     }
 
     @Override
