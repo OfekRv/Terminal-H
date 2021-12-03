@@ -145,7 +145,7 @@ public class OneProjectCrawler extends AbstractShopCrawler {
         Elements picContainers = getElementsByClass(product, "product_image_small_item");
         String[] pics = new String[picContainers.size() - 1];
         for (int picIdx = 0; picIdx < picContainers.size() - 1; picIdx++) {
-            Optional<String> picUrl = Optional.ofNullable(picContainers.get(picIdx).select("img").attr("src"));
+            Optional<String> picUrl = Optional.ofNullable(picContainers.get(picIdx).select("img").attr("data-src-large"));
             if (picUrl.isPresent()) {
                 pics[picIdx] = picUrl.get();
             }
